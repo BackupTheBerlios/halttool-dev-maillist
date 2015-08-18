@@ -1,0 +1,306 @@
+From admin at berlios.de  Fri Feb 24 13:04:41 2006
+From: admin at berlios.de (admin at berlios.de)
+Date: Fri, 24 Feb 2006 06:04:41 -0600 (CST)
+Subject: [Halttool-dev] [Task #2825] Labels as effective addresses
+Message-ID: <200602241204.k1OC4fKj020652@unicorn.berlios.de>
+
+Task #2825 has been updated. 
+
+Project: Humane Assembly Language Tools
+Subproject: Language Features
+Summary: Labels as effective addresses
+Priority: 9
+Percent Complete: 0%
+Status: Open
+Authority  : twinbee
+Assigned to: none
+
+Description: For non-anonymous data :). This is important.
+
+-------------------------------------------------------
+For more info, visit:
+
+http://developer.berlios.de/pm/task.php?func=detailtask&project_task_id=2825&group_id=6059&group_project_id=1344
+
+
+From admin at berlios.de  Fri Feb 24 13:05:06 2006
+From: admin at berlios.de (admin at berlios.de)
+Date: Fri, 24 Feb 2006 06:05:06 -0600 (CST)
+Subject: [Halttool-dev] [Task #2826] LEA
+Message-ID: <200602241205.k1OC56Gq021630@unicorn.berlios.de>
+
+Task #2826 has been updated. 
+
+Project: Humane Assembly Language Tools
+Subproject: Language Features
+Summary: LEA
+Priority: 5
+Percent Complete: 0%
+Status: Open
+Authority  : twinbee
+Assigned to: none
+
+Description: LEA
+
+-------------------------------------------------------
+For more info, visit:
+
+http://developer.berlios.de/pm/task.php?func=detailtask&project_task_id=2826&group_id=6059&group_project_id=1344
+
+
+From admin at berlios.de  Fri Feb 24 13:05:43 2006
+From: admin at berlios.de (admin at berlios.de)
+Date: Fri, 24 Feb 2006 06:05:43 -0600 (CST)
+Subject: [Halttool-dev] [Task #2827] BRA, BGT, BLT, BLE, BGE
+Message-ID: <200602241205.k1OC5h3B022928@unicorn.berlios.de>
+
+Task #2827 has been updated. 
+
+Project: Humane Assembly Language Tools
+Subproject: Language Features
+Summary: BRA, BGT, BLT, BLE, BGE
+Priority: 5
+Percent Complete: 0%
+Status: Open
+Authority  : twinbee
+Assigned to: none
+
+Description: branches
+
+-------------------------------------------------------
+For more info, visit:
+
+http://developer.berlios.de/pm/task.php?func=detailtask&project_task_id=2827&group_id=6059&group_project_id=1344
+
+
+From admin at berlios.de  Fri Feb 24 13:06:35 2006
+From: admin at berlios.de (admin at berlios.de)
+Date: Fri, 24 Feb 2006 06:06:35 -0600 (CST)
+Subject: [Halttool-dev] [Task #2828] CMP
+Message-ID: <200602241206.k1OC6ZJm024314@unicorn.berlios.de>
+
+Task #2828 has been updated. 
+
+Project: Humane Assembly Language Tools
+Subproject: Language Features
+Summary: CMP
+Priority: 5
+Percent Complete: 0%
+Status: Open
+Authority  : twinbee
+Assigned to: none
+
+Description: compare
+
+implementation might include dilly dallying with the status registers
+
+-------------------------------------------------------
+For more info, visit:
+
+http://developer.berlios.de/pm/task.php?func=detailtask&project_task_id=2828&group_id=6059&group_project_id=1344
+
+
+From merwin at berlios.de  Fri Feb 24 23:22:49 2006
+From: merwin at berlios.de (merwin at BerliOS)
+Date: Fri, 24 Feb 2006 23:22:49 +0100
+Subject: [Halttool-dev] r33 - trunk/code
+Message-ID: <200602242222.k1OMMnlH001675@sheep.berlios.de>
+
+Author: merwin
+Date: 2006-02-24 23:22:49 +0100 (Fri, 24 Feb 2006)
+New Revision: 33
+
+Modified:
+   trunk/code/Word.cpp
+   trunk/code/Word.h
+   trunk/code/Workspace.cpp
+   trunk/code/Workspace.h
+   trunk/code/main.cpp
+Log:
+Prepared Word for 3rd-party inspection.
+
+
+Modified: trunk/code/Word.cpp
+===================================================================
+--- trunk/code/Word.cpp	2006-02-24 03:01:24 UTC (rev 32)
++++ trunk/code/Word.cpp	2006-02-24 22:22:49 UTC (rev 33)
+@@ -2,10 +2,18 @@
+ #include "Word.h"
+ #include "Timer.h"
+ 
++Word* g_infoWord;
++
+ Word::Word( short v, Type t )
+ 	: m_value(v), m_type(t), m_timestamp(g_timer.ticks())
+ 	{ }
+ 
++Word::~Word()
++	{
++	if ( g_infoWord == this )
++		g_infoWord = NULL;		// clean up dangling pointer
++	}
++
+ short Word::read() const
+ 	{
+ 	m_timestamp = g_timer.ticks();
+
+Modified: trunk/code/Word.h
+===================================================================
+--- trunk/code/Word.h	2006-02-24 03:01:24 UTC (rev 32)
++++ trunk/code/Word.h	2006-02-24 22:22:49 UTC (rev 33)
+@@ -14,6 +14,7 @@
+ 
+ public:
+ 	Word( short v = 0, Type t = Unknown );
++	~Word();
+ 
+ 	short read() const;
+ 	void write( short );
+@@ -24,4 +25,6 @@
+ 	void touch();
+ 	};
+ 
++extern Word* g_infoWord;
++
+ #endif
+
+Modified: trunk/code/Workspace.cpp
+===================================================================
+--- trunk/code/Workspace.cpp	2006-02-24 03:01:24 UTC (rev 32)
++++ trunk/code/Workspace.cpp	2006-02-24 22:22:49 UTC (rev 33)
+@@ -24,49 +24,46 @@
+ 		glVertex2i( 0, bounds.h );
+ 	glEnd();
+ 
+-	endLocal();
++//	//<matt>: "pretty prettier snowflakes" 2-18-06
++//	const float SFSIZE = 6.0;
++//	  glColor4f( 1.0, 1.0, 1.0, 0.15 );
++//	if (snowflakes.size() == 0) //how many snowflakes?
++//	// 0 is not snowing, 20 enough, 50 too much, 200 blizzard
++//	{ for (int i = 0; i <= 50; i++)
++//	  snowflakes.push_back
++//	  (snowflake(rand()%bounds.w, rand()%bounds.h, rand()%360, ((rand()%2)-1.0)/5.0, ((rand()%2)-1.0)/5.0));
++//	}
++//	for (int i = 0; i < snowflakes.size(); i++)
++//	{
++//	 snowflakes[i].rz += SFSIZE;
++//	 if (snowflakes[i].rz >= 360.0) snowflakes[i].rz = 0.0;
++//
++//	 snowflakes[i].px += 0.5 + snowflakes[i].dx;
++//	 if (snowflakes[i].px >= bounds.w) snowflakes[i].px = 0.0;
++//
++//	 snowflakes[i].py += 0.5 + snowflakes[i].dy;
++//	 if (snowflakes[i].py >= bounds.h) snowflakes[i].py = 0.0;
++//	 
++//	 glPushMatrix();
++//	 glTranslatef(snowflakes[i].px, snowflakes[i].py, 0.0);
++//	 //which is pretier? I think the 2nd one is
++//	 //glRotatef(snowflakes[i].rz, 0.0, 0.0, 1.0);
++//	 glRotatef(snowflakes[i].rz, 1.0, 0.0, 1.0);
++//	 glBegin( GL_TRIANGLES );
++//	  glVertex2f( - SFSIZE, + SFSIZE);
++//	  glVertex2f( 0.0,  - SFSIZE);
++//	  glVertex2f( + SFSIZE, + SFSIZE);
++//	 glEnd();
++//	 glTranslatef(0.0, SFSIZE/2.0, 0.0);
++//	 glBegin( GL_TRIANGLES );
++//	  glVertex2f( + SFSIZE, - SFSIZE);
++//	  glVertex2f( 0.0,  + SFSIZE);
++//	  glVertex2f( - SFSIZE, - SFSIZE);
++//	 glEnd();
++//	 glPopMatrix();
++//	}
++//	//</matt> snowflakes
+ 
+-	//beginLocal();
+-	////<matt>: "pretty prettier snowflakes" 2-18-06
+-	//const float SFSIZE = 6.0;
+-	//  glColor4f( 1.0, 1.0, 1.0, 0.15 );
+-	//if (snowflakes.size() == 0) //how many snowflakes?
+-	//// 0 is not snowing, 20 enough, 50 too much, 200 blizzard
+-	//{ for (int i = 0; i <= 50; i++)
+-	//  snowflakes.push_back
+-	//  (snowflake(rand()%bounds.w, rand()%bounds.h, rand()%360, ((rand()%2)-1.0)/5.0, ((rand()%2)-1.0)/5.0));
+-	//}
+-	//for (int i = 0; i < snowflakes.size(); i++)
+-	//{
+-	// snowflakes[i].rz += SFSIZE;
+-	// if (snowflakes[i].rz >= 360.0) snowflakes[i].rz = 0.0;
+-
+-	// snowflakes[i].px += 0.5 + snowflakes[i].dx;
+-	// if (snowflakes[i].px >= bounds.w) snowflakes[i].px = 0.0;
+-
+-	// snowflakes[i].py += 0.5 + snowflakes[i].dy;
+-	// if (snowflakes[i].py >= bounds.h) snowflakes[i].py = 0.0;
+-	// 
+-	// glPushMatrix();
+-	// glTranslatef(snowflakes[i].px, snowflakes[i].py, 0.0);
+-	// //which is pretier? I think the 2nd one is
+-	// //glRotatef(snowflakes[i].rz, 0.0, 0.0, 1.0);
+-	// glRotatef(snowflakes[i].rz, 1.0, 0.0, 1.0);
+-	// glBegin( GL_TRIANGLES );
+-	//  glVertex2f( - SFSIZE, + SFSIZE);
+-	//  glVertex2f( 0.0,  - SFSIZE);
+-	//  glVertex2f( + SFSIZE, + SFSIZE);
+-	// glEnd();
+-	// glTranslatef(0.0, SFSIZE/2.0, 0.0);
+-	// glBegin( GL_TRIANGLES );
+-	//  glVertex2f( + SFSIZE, - SFSIZE);
+-	//  glVertex2f( 0.0,  + SFSIZE);
+-	//  glVertex2f( - SFSIZE, - SFSIZE);
+-	// glEnd();
+-	// glPopMatrix();
+-	//}
+-	////</matt> snowflakes
+-	//endLocal();
+-
++	endLocal();
+ 	drawSubViews();
+ 	}
+
+Modified: trunk/code/Workspace.h
+===================================================================
+--- trunk/code/Workspace.h	2006-02-24 03:01:24 UTC (rev 32)
++++ trunk/code/Workspace.h	2006-02-24 22:22:49 UTC (rev 33)
+@@ -4,23 +4,12 @@
+ 
+ #include "View.h"
+ 
+-#include <vector>
+-
+-#include <cmath>
+-
+ class Workspace : public View
+ 	{
+ 
+ public:
+ 	Workspace( size );
+ 	
+-	struct snowflake
+-	{ float px, py, rz, dx, dy;
+-	  snowflake(float x, float y, float r, float vx, float vy) :
+-		px(x), py(y), rz(r), dx(vx), dy(vy) {}
+-	};
+-	std::vector< snowflake > snowflakes;
+-
+ 	void draw();
+ 	};
+ 
+
+Modified: trunk/code/main.cpp
+===================================================================
+--- trunk/code/main.cpp	2006-02-24 03:01:24 UTC (rev 32)
++++ trunk/code/main.cpp	2006-02-24 22:22:49 UTC (rev 33)
+@@ -134,7 +134,7 @@
+ 	glutMouseFunc( mouse );
+ 	glutMotionFunc( motion );
+ 
+-	//glutIdleFunc( display ); // for snowflakes
++//	glutIdleFunc( display ); // for snowflakes
+ 
+ 	initGL();
+ 
+
+
+

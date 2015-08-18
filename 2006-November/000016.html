@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Halttool-dev] r45 - trunk/code
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/halttool-dev/2006-November/index.html" >
+   <LINK REL="made" HREF="mailto:halttool-dev%40lists.berlios.de?Subject=Re%3A%20%5BHalttool-dev%5D%20r45%20-%20trunk/code&In-Reply-To=%3C200611211938.kALJc8BT002004%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Halttool-dev] r45 - trunk/code</H1>
+    <B>twinbee at mail.berlios.de</B> 
+    <A HREF="mailto:halttool-dev%40lists.berlios.de?Subject=Re%3A%20%5BHalttool-dev%5D%20r45%20-%20trunk/code&In-Reply-To=%3C200611211938.kALJc8BT002004%40sheep.berlios.de%3E"
+       TITLE="[Halttool-dev] r45 - trunk/code">twinbee at mail.berlios.de
+       </A><BR>
+    <I>Tue Nov 21 20:38:08 CET 2006</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#16">[ date ]</a>
+              <a href="thread.html#16">[ thread ]</a>
+              <a href="subject.html#16">[ subject ]</a>
+              <a href="author.html#16">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: twinbee
+Date: 2006-11-21 20:37:55 +0100 (Tue, 21 Nov 2006)
+New Revision: 45
+
+Modified:
+   trunk/code/Color.cpp
+Log:
+
+
+Modified: trunk/code/Color.cpp
+===================================================================
+--- trunk/code/Color.cpp	2006-04-28 17:44:20 UTC (rev 44)
++++ trunk/code/Color.cpp	2006-11-21 19:37:55 UTC (rev 45)
+@@ -1,38 +1,41 @@
+-
+-#include &quot;Color.h&quot;
+-#include &quot;graphics.h&quot;
+-
+-std::map&lt; std::string, Color &gt; Color::palette;
+-
+-Color::Color()
+-	: red(0.5), green(0.5), blue(0.5), alpha(1.0)
+-	{ }
+-
+-Color::Color( float r, float g, float b, float a )
+-	: red(r), green(g), blue(b), alpha(a)
+-	{ }
+-
+-Color::Color( float hue )
+-	:   red( cos(( hue - 0.000 ) * 2 * M_PI ) / 2 + 0.5 ),
+-	  green( cos(( hue - 0.333 ) * 2 * M_PI ) / 2 + 0.5 ),
+-	   blue( cos(( hue - 0.667 ) * 2 * M_PI ) / 2 + 0.5 ),
+-	  alpha( 1.0 )
+-	{ }
+-
+-void Color::set()
+-	{
+-	glColor4f( red, green, blue, alpha );
+-	}
+-
+-float Color::value()
+-	{ return ( red + green + blue ) / 3; }
+-
+-Color Color::scaleValue( float v )
+-	{
+-	return Color( red * v, green * v, blue * v, alpha );
+-	}
+-
+-Color Color::withAlpha( float a )
+-	{
+-	return Color( red, green, blue, a );
+-	}
++//superficial changes!!!
++// actually i am just showing mike johnson SVN
++// will remove --matt
++
++#include &quot;Color.h&quot;
++#include &quot;graphics.h&quot;
++
++std::map&lt; std::string, Color &gt; Color::palette;
++
++Color::Color()
++	: red(0.5), green(0.5), blue(0.5), alpha(1.0)
++	{ }
++
++Color::Color( float r, float g, float b, float a )
++	: red(r), green(g), blue(b), alpha(a)
++	{ }
++
++Color::Color( float hue )
++	:   red( cos(( hue - 0.000 ) * 2 * M_PI ) / 2 + 0.5 ),
++	  green( cos(( hue - 0.333 ) * 2 * M_PI ) / 2 + 0.5 ),
++	   blue( cos(( hue - 0.667 ) * 2 * M_PI ) / 2 + 0.5 ),
++	  alpha( 1.0 )
++	{ }
++
++void Color::set()
++	{
++	glColor4f( red, green, blue, alpha );
++	}
++
++float Color::value()
++	{ return ( red + green + blue ) / 3; }
++
++Color Color::scaleValue( float v )
++	{
++	return Color( red * v, green * v, blue * v, alpha );
++	}
++
++Color Color::withAlpha( float a )
++	{
++	return Color( red, green, blue, a );
++	}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#16">[ date ]</a>
+              <a href="thread.html#16">[ thread ]</a>
+              <a href="subject.html#16">[ subject ]</a>
+              <a href="author.html#16">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/halttool-dev">More information about the Halttool-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,490 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Halttool-dev] r36 - trunk/code
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/halttool-dev/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:halttool-dev%40lists.berlios.de?Subject=Re%3A%20%5BHalttool-dev%5D%20r36%20-%20trunk/code&In-Reply-To=%3C200604280058.k3S0wm4O028763%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000006.html">
+   <LINK REL="Next"  HREF="000008.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Halttool-dev] r36 - trunk/code</H1>
+    <B>merwin at BerliOS</B> 
+    <A HREF="mailto:halttool-dev%40lists.berlios.de?Subject=Re%3A%20%5BHalttool-dev%5D%20r36%20-%20trunk/code&In-Reply-To=%3C200604280058.k3S0wm4O028763%40sheep.berlios.de%3E"
+       TITLE="[Halttool-dev] r36 - trunk/code">merwin at berlios.de
+       </A><BR>
+    <I>Fri Apr 28 02:58:48 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000006.html">[Halttool-dev] r35 - trunk/docs
+</A></li>
+        <LI>Next message: <A HREF="000008.html">[Halttool-dev] r37 - trunk/code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#7">[ date ]</a>
+              <a href="thread.html#7">[ thread ]</a>
+              <a href="subject.html#7">[ subject ]</a>
+              <a href="author.html#7">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: merwin
+Date: 2006-04-28 02:58:22 +0200 (Fri, 28 Apr 2006)
+New Revision: 36
+
+Modified:
+   trunk/code/Lexer.cpp
+   trunk/code/Processor.cpp
+   trunk/code/Processor.h
+   trunk/code/Program.cpp
+   trunk/code/Program.h
+   trunk/code/ProgramEditor.cpp
+   trunk/code/Sequence.cpp
+   trunk/code/Sequence.h
+   trunk/code/SymbolTable.cpp
+   trunk/code/SymbolTable.h
+   trunk/code/Timer.cpp
+   trunk/code/main.cpp
+Log:
+Late name binding implemented, needs work to be robust.
+LEA and BRA instructions work (somewhat).
+Fixed a few little bugs.
+
+
+Modified: trunk/code/Lexer.cpp
+===================================================================
+--- trunk/code/Lexer.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Lexer.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -1,10 +1,4 @@
+-// Matt's Stuff I want Feb 19, 2006:
+-//  BRA, BSR, CMP Compare, JMP, JSR, LEA, 
+-//  NOP, ROL, ROR, RTS, TRAP
+ 
+-// datatypes: byte, char (masqueraded byte), long
+- // (can be delayed indefinitely, req changes to the stack)
+-
+ #include &quot;Lexer.h&quot;
+ 
+ using namespace std;
+@@ -29,7 +23,7 @@
+ 	opcodes.insert(&quot;nop&quot;);
+ 	opcodes.insert(&quot;stop&quot;);
+ 	
+-//	opcodes.insert(&quot;bra&quot;);
++	opcodes.insert(&quot;bra&quot;);
+ //	opcodes.insert(&quot;beq&quot;);
+ //	opcodes.insert(&quot;bne&quot;);
+ 	
+
+Modified: trunk/code/Processor.cpp
+===================================================================
+--- trunk/code/Processor.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Processor.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -86,6 +86,8 @@
+ 		{ &quot;eor&quot;,  0xb140, 0xf1c0, (Method) &amp;Processor::exec_eor },
+ 		{ &quot;not&quot;,  0x4640, 0xffc0, (Method) &amp;Processor::exec_not },
+ 
++		{ &quot;bra&quot;,  0x6000, 0xffff, (Method) &amp;Processor::exec_bra },
++
+ 		{ &quot;nop&quot;,  0x4e75, 0xffff, (Method) &amp;Processor::exec_nop },
+ 		{ &quot;stop&quot;, 0x4e72, 0xffff, (Method) &amp;Processor::exec_stop },
+ 
+@@ -276,6 +278,12 @@
+ void Processor::exec_nop()
+ 	{ /* do nothing! */ }
+ 
++void Processor::exec_bra()
++	{
++	// might not be quite correct, but it's competition time!
++	pc = fetch();
++	}
++
+ void Processor::exec_stop()
+ 	{ m_running = false; }
+ 
+
+Modified: trunk/code/Processor.h
+===================================================================
+--- trunk/code/Processor.h	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Processor.h	2006-04-28 00:58:22 UTC (rev 36)
+@@ -57,6 +57,8 @@
+ 	void exec_or();
+ 	void exec_eor();
+ 	void exec_not();
++
++	void exec_bra();
+ 	
+ 	void exec_nop();
+ 	void exec_stop();
+
+Modified: trunk/code/Program.cpp
+===================================================================
+--- trunk/code/Program.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Program.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -76,6 +76,34 @@
+ 	m_lines.erase( m_lines.begin() + ( n - 1 ));
+ 	}
+ 
++void Program::bind()
++	{
++	try {
++		map&lt; string, unsigned short &gt; symbols;
++		unsigned address = 0;
++
++		// build symbols on first pass
++		for ( vector&lt;Sequence&gt;::iterator i = m_lines.begin(); i != m_lines.end(); ++i )
++			{
++			i-&gt;address( address );			// set sequence's address
++
++			string name = i-&gt;name();
++			if ( ! name.empty())
++				symbols[ name ] = address;
++
++			address += i-&gt;code().size();	// bump counter
++			}
++
++		// resolve symbols on second pass
++		for ( vector&lt;Sequence&gt;::iterator i = m_lines.begin(); i != m_lines.end(); ++i )
++			i-&gt;bind( symbols );
++		}
++	catch ( string message )
++		{
++		cerr &lt;&lt; &quot;&lt;bind&gt; &quot; &lt;&lt; message &lt;&lt; endl;
++		}
++	}
++
+ void Program::dump( ostream&amp; out ) const
+ 	{
+ 	out &lt;&lt; endl;
+
+Modified: trunk/code/Program.h
+===================================================================
+--- trunk/code/Program.h	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Program.h	2006-04-28 00:58:22 UTC (rev 36)
+@@ -28,6 +28,7 @@
+ 	void insert( unsigned n, Sequence );
+ 	void remove( unsigned n );
+ 	
++	void bind();
+ 	void dump( std::ostream&amp; ) const;
+ 	};
+ 
+
+Modified: trunk/code/ProgramEditor.cpp
+===================================================================
+--- trunk/code/ProgramEditor.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/ProgramEditor.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -34,6 +34,7 @@
+ 	bounds.w = m_program-&gt;lineLength() * fontWidth + 2 * margin;
+ 	bounds.h = m_program-&gt;lineCount() * ( fontHeight + leading ) - leading + 2 * margin;
+ 	
++	m_program-&gt;bind();
+ 	g_mem.clear();
+ 	g_mem &lt;&lt; *m_program;
+ 	}
+
+Modified: trunk/code/Sequence.cpp
+===================================================================
+--- trunk/code/Sequence.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Sequence.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -17,14 +17,13 @@
+ 	 
+ 	lex &lt;&lt; sourceText;
+ 
+-	if (sourceText != string(&quot;&quot;) ) //Matt 2-18-06
+-		while ( lex &gt;&gt; t )
+-			{
+-			m_tokens.push_back( t );
++	while ( lex &gt;&gt; t )
++		{
++		m_tokens.push_back( t );
+ 
+-			if ( ! lex.success() )
+-				m_errors.push_back( lex.error() );
+-			}
++		if ( ! lex.success() )
++			m_errors.push_back( lex.error() );
++		}
+ 	
+ 	translate();
+ 	}
+@@ -46,9 +45,37 @@
+ 			out &lt;&lt; *i &lt;&lt; endl;
+ 	}
+ 
++void Sequence::bind( const map&lt; string, unsigned short &gt;&amp; symbols )	
++	{
++	for ( vector&lt;CrossReference&gt;::const_iterator i = m_crossRefs.begin(); i != m_crossRefs.end(); ++i )
++		{
++		map&lt; string, unsigned short &gt;::const_iterator symbol = symbols.find( i-&gt;name );
++		if ( symbol != symbols.end())
++			m_code[ i-&gt;offset ] = symbol-&gt;second; // we want the numeric address
++		else
++			throw string(&quot;'&quot;) + i-&gt;name + &quot;' is a mystery symbol&quot;;
++		}
++	}
++
+ Word::Type Sequence::type() const
+ 	{ return m_type; }
+ 
++unsigned short Sequence::address() const
++	{ return m_address; }
++
++void Sequence::address( unsigned short newAddress )
++	{ m_address = newAddress; }
++
++const string Sequence::name() const
++	{
++	const Token&amp; tok = m_tokens.front();
++
++	if ( tok.is( Token::Label ))
++		return tok.text;
++	else
++		return &quot;&quot;;
++	}
++
+ const string&amp; Sequence::source() const
+ 	{ return m_source; }
+ 
+@@ -91,6 +118,8 @@
+ 		table[&quot;eor&quot;]  = EncodeEntry( 0xb140, (Method) &amp;Sequence::asm_eor );
+ 		table[&quot;not&quot;]  = EncodeEntry( 0x4640, (Method) &amp;Sequence::asm_not );
+ 		
++		table[&quot;bra&quot;]  = EncodeEntry( 0x6000, (Method) &amp;Sequence::asm_bra );
++
+ 		table[&quot;nop&quot;]  = EncodeEntry( 0x4e75, NULL );
+ 		table[&quot;stop&quot;] = EncodeEntry( 0x4e72, NULL );
+ 
+@@ -102,7 +131,7 @@
+ 	if ( m_tokens.empty() || m_tokens.begin()-&gt;is( Token::Comment ))
+ 		return;	// blank lines are okay
+ 
+-	m_tokens.push_back( Token::EndLine );				// should end up here after parse
++	m_tokens.push_back( Token::EndLine );	// should end up here after parse
+ 	token = m_tokens.begin();
+ 
+ 	try {
+@@ -271,7 +300,8 @@
+ 	else if ( token-&gt;is( Token::Label ))
+ 		{
+ 		ea = EA( EA::Absolute, 0 );
+-		m_code.push_back( 0 );
++		m_crossRefs.push_back((CrossReference){ token-&gt;text, m_code.size() });
++		m_code.push_back( 0 ); // placeholder until names are bound
+ 		++token;
+ 		}
+ 	else if ( token-&gt;is( Token::Number ))
+@@ -411,3 +441,10 @@
+ 	opWord.insert( dest.reg, 0, 3 );
+ 	opWord.insert( dest.mode, 3, 3 );
+ 	}
++
++void Sequence::asm_bra()
++	{
++	EA target = parseOperand();
++	if ( target.mode != EA::Absolute )
++		throw string(&quot;branch target must be a label&quot;);
++	}
+
+Modified: trunk/code/Sequence.h
+===================================================================
+--- trunk/code/Sequence.h	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Sequence.h	2006-04-28 00:58:22 UTC (rev 36)
+@@ -4,6 +4,7 @@
+ 
+ #include &lt;string&gt;
+ #include &lt;vector&gt;
++#include &lt;map&gt;
+ #include &lt;iostream&gt;
+ 
+ #include &quot;Object.h&quot;
+@@ -12,6 +13,7 @@
+ #include &quot;EA.h&quot;
+ #include &quot;BitField.h&quot;
+ 
++
+ class Sequence : public Object
+ 	{
+ 	// these are useful for the life of the sequence
+@@ -20,7 +22,16 @@
+ 	std::vector&lt; Token &gt; m_tokens;
+ 	std::vector&lt; short &gt; m_code;
+ 	std::vector&lt; std::string &gt; m_errors;
++	unsigned short m_address;
+ 
++	struct CrossReference
++		{
++		std::string name;
++		unsigned short offset;
++		};
++
++	std::vector&lt; CrossReference &gt; m_crossRefs;
++
+ 	// these are only used during construction
+ 	std::vector&lt; Token &gt;::iterator token;
+ 	BitField opWord;
+@@ -38,6 +49,8 @@
+ 	void asm_eor();
+ 	void asm_not();
+ 
++	void asm_bra();
++
+ public:
+ 	Sequence( std::string sourceText );
+ 
+@@ -46,10 +59,15 @@
+ 
+ 	Word::Type type() const;
+ 
++	unsigned short address() const;
++	void address( unsigned short );
++
++	const std::string name() const;
+ 	const std::string&amp; source() const;
+ 	const std::vector&lt; Token &gt;&amp; tokens() const;
+ 	const std::vector&lt; short &gt;&amp; code() const;
+ 
++	void bind( const std::map&lt; std::string, unsigned short &gt;&amp; symbols );
+ 	void dump( std::ostream&amp; ) const;
+ 	};
+ 
+
+Modified: trunk/code/SymbolTable.cpp
+===================================================================
+--- trunk/code/SymbolTable.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/SymbolTable.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -1,11 +1,26 @@
+-/*
+- *  SymbolTable.cpp
+- *  halt
+- *
+- *  Created by Mike Erwin on 2/23/2006.
+- *  Copyright 2006 __MyCompanyName__. All rights reserved.
+- *
+- */
+ 
+ #include &quot;SymbolTable.h&quot;
++#include &quot;Sequence.h&quot;
+ 
++using namespace std;
++
++SymbolTable g_symbolTable;
++
++//	struct CrossReference
++//		{
++//		Sequence* sequence;
++//		unsigned short offset;
++//		};
++//
++//	map&lt; string, Sequence* &gt; namedSequences;
++//	multimap&lt; string, CrossReference &gt; crossReferences;
++
++void SymbolTable::bind()
++	{
++	for ( map&lt;string,Sequence*&gt;::const_iterator i  = namedSequences.begin();
++												i != namedSequences.end(); ++i )
++		{
++		const string&amp; name = i-&gt;first;
++		const unsigned short address = i-&gt;second-&gt;address();
++		}
++	}
+
+Modified: trunk/code/SymbolTable.h
+===================================================================
+--- trunk/code/SymbolTable.h	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/SymbolTable.h	2006-04-28 00:58:22 UTC (rev 36)
+@@ -1,9 +1,27 @@
+-/*
+- *  SymbolTable.h
+- *  halt
+- *
+- *  Created by Mike Erwin on 2/23/2006.
+- *  Copyright 2006 __MyCompanyName__. All rights reserved.
+- *
+- */
+ 
++#ifndef halt_SymbolTable
++#define halt_SymbolTable
++
++#include &lt;string&gt;
++#include &lt;map&gt;
++
++class Sequence; // forward reference
++
++struct CrossReference
++	{
++	Sequence* sequence;
++	unsigned short offset;
++	};
++
++class SymbolTable
++	{
++	std::map&lt; std::string, Sequence* &gt; namedSequences;
++	std::multimap&lt; std::string, CrossReference &gt; crossReferences;
++
++public:
++	void bind();
++	};
++
++extern SymbolTable g_symbolTable;
++
++#endif
+
+Modified: trunk/code/Timer.cpp
+===================================================================
+--- trunk/code/Timer.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Timer.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -62,6 +62,7 @@
+ View* Timer::click( point p )
+ 	{
+ 	enabled() ? stop() : start();
++	glutPostRedisplay();
+ 	return this;
+ 	}
+ 
+
+Modified: trunk/code/main.cpp
+===================================================================
+--- trunk/code/main.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/main.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -155,7 +155,7 @@
+ 	screen-&gt;addSubView( new ControlPane, point( 400, 20 ));
+ 
+ 	ProgramEditor* progEdit = new ProgramEditor;
+-	progEdit-&gt;program( new Program(&quot;test&quot;));
++	progEdit-&gt;program( new Program/*(&quot;test&quot;)*/);
+ 	screen-&gt;addSubView( progEdit, point( 400, 90 ));
+ 
+ 	mouseTarget = screen;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000006.html">[Halttool-dev] r35 - trunk/docs
+</A></li>
+	<LI>Next message: <A HREF="000008.html">[Halttool-dev] r37 - trunk/code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#7">[ date ]</a>
+              <a href="thread.html#7">[ thread ]</a>
+              <a href="subject.html#7">[ subject ]</a>
+              <a href="author.html#7">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/halttool-dev">More information about the Halttool-dev
+mailing list</a><br>
+</body></html>

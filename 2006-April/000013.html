@@ -1,0 +1,367 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Halttool-dev] r42 - trunk/code
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/halttool-dev/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:halttool-dev%40lists.berlios.de?Subject=Re%3A%20%5BHalttool-dev%5D%20r42%20-%20trunk/code&In-Reply-To=%3C200604281526.k3SFQEl8006607%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000012.html">
+   <LINK REL="Next"  HREF="000014.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Halttool-dev] r42 - trunk/code</H1>
+    <B>merwin at BerliOS</B> 
+    <A HREF="mailto:halttool-dev%40lists.berlios.de?Subject=Re%3A%20%5BHalttool-dev%5D%20r42%20-%20trunk/code&In-Reply-To=%3C200604281526.k3SFQEl8006607%40sheep.berlios.de%3E"
+       TITLE="[Halttool-dev] r42 - trunk/code">merwin at berlios.de
+       </A><BR>
+    <I>Fri Apr 28 17:26:14 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000012.html">[Halttool-dev] r41 - trunk/code
+</A></li>
+        <LI>Next message: <A HREF="000014.html">[Halttool-dev] r43 - trunk/code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#13">[ date ]</a>
+              <a href="thread.html#13">[ thread ]</a>
+              <a href="subject.html#13">[ subject ]</a>
+              <a href="author.html#13">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: merwin
+Date: 2006-04-28 17:26:13 +0200 (Fri, 28 Apr 2006)
+New Revision: 42
+
+Modified:
+   trunk/code/Processor.cpp
+   trunk/code/Processor.h
+   trunk/code/Reference.cpp
+   trunk/code/Sequence.cpp
+   trunk/code/SystemView.cpp
+Log:
+Address Register orange rings!
+CMP added back in (as a demo hack).
+
+
+Modified: trunk/code/Processor.cpp
+===================================================================
+--- trunk/code/Processor.cpp	2006-04-28 13:47:39 UTC (rev 41)
++++ trunk/code/Processor.cpp	2006-04-28 15:26:13 UTC (rev 42)
+@@ -10,14 +10,17 @@
+ Processor::Processor()
+ 	{
+ 	regs &lt;&lt; Sequence(&quot;word[8]&quot;);
++	addrs &lt;&lt; Sequence(&quot;word[8]&quot;);
++
+ 	reset();
+ 	}
+ 
+ const Word&amp; Processor::reg( unsigned short address ) const
+-	{
+-	return regs.word( address );
+-	}
++	{ return regs.word( address ); }
+ 
++const Word&amp; Processor::addr( unsigned short address ) const
++	{ return addrs.word( address ); }
++
+ void Processor::reset()
+ 	{
+ 	pc = 0;
+@@ -26,7 +29,7 @@
+ 	for ( int i = 0; i &lt;= 7; ++i )
+ 		{
+ 		regs.write( i, Word::Data, 0 );
+-		a[i] = 0;
++		addrs.write( i, Word::Address, -1 ); // incorrect, but forces unused regs offscreen
+ 		}
+ 
+ 	setFlags( 0 );
+@@ -76,7 +79,7 @@
+ 		{ &quot;move&quot;, 0x3000, 0xf000, (Method) &amp;Processor::exec_move },
+ 		{ &quot;lea&quot;,  0x41c0, 0xf1c0, (Method) &amp;Processor::exec_lea },
+ 
+-//		{ &quot;cmp&quot;,  0xb040, 0xf0c0, (Method) &amp;Processor::exec_cmp },
++		{ &quot;cmp&quot;,  0xb040, 0xf0c0, (Method) &amp;Processor::exec_cmp },
+ 		{ &quot;add&quot;,  0xd040, 0xf0c0, (Method) &amp;Processor::exec_add },
+ 		{ &quot;sub&quot;,  0x9040, 0xf0c0, (Method) &amp;Processor::exec_sub },
+ 		{ &quot;mul&quot;,  0xc1c0, 0xf1c0, (Method) &amp;Processor::exec_mul },
+@@ -156,24 +159,27 @@
+ 	dest.write( src.getAddress());
+ 	}
+ 
+-//void Processor::exec_cmp()
+-//	{
+-//	EA dataReg( EA::DataDirect, ir.extract( 9, 3 ));
+-//	EA ea( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
+-//
+-//	bool eaIsDest = (bool) ir.extract( 8 );
+-//
+-//	Reference src( eaIsDest ? dataReg : ea );
+-//	Reference dest( eaIsDest ? ea : dataReg );
+-//	
++void Processor::exec_cmp()
++	{
++	// this instruction is not &quot;by the book&quot;
++	// it's a placeholder for the demonstration.
++
++	EA dataReg( EA::DataDirect, ir.extract( 9, 3 ));
++	EA ea( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
++
++	bool eaIsDest = (bool) ir.extract( 8 );
++
++	Reference src( eaIsDest ? dataReg : ea );
++	Reference dest( eaIsDest ? ea : dataReg );
++	
+ //	if ( eaIsDest &amp;&amp; !dest.inCategory( EA::alterable | EA::memory ))
+ //		throw string(&quot;destination must be alterable memory&quot;);
+-//	
+-//	short result = dest.read() - src.read();
+-//
+-//	setFlags( result );
+-//	}
++	
++	short result = dest.read() - src.read();
+ 
++	setFlags( result );
++	}
++
+ void Processor::exec_add()
+ 	{
+ 	EA dataReg( EA::DataDirect, ir.extract( 9, 3 ));
+
+Modified: trunk/code/Processor.h
+===================================================================
+--- trunk/code/Processor.h	2006-04-28 13:47:39 UTC (rev 41)
++++ trunk/code/Processor.h	2006-04-28 15:26:13 UTC (rev 42)
+@@ -13,14 +13,15 @@
+ class Processor : public Object
+ 	{
+ 	Memory regs;			// data registers
+-	unsigned short a[8];	// address registers
++	Memory addrs;			// address registers
+ 
++//	unsigned short a[8];	// (old) address registers
++
+ 	std::string mnemonic;	// current instruction
+ 	BitField ir;			// instruction register
+ 	BitField sr;			// status register
+ 	unsigned short pc;		// program counter
+ 	
+-
+ 	bool m_error;
+ 	bool m_running;
+ 
+@@ -29,6 +30,7 @@
+ 
+ 	// data registers
+ 	const Word&amp; reg( unsigned short address ) const;
++	const Word&amp; addr( unsigned short address ) const;
+ 
+ 	// status flags
+ 	bool negative() const;
+@@ -48,7 +50,7 @@
+ 	void exec_move();
+ 	void exec_lea();
+ 
+-//	void exec_cmp();
++	void exec_cmp();
+ 	void exec_add();
+ 	void exec_sub();
+ 	void exec_mul();
+
+Modified: trunk/code/Reference.cpp
+===================================================================
+--- trunk/code/Reference.cpp	2006-04-28 13:47:39 UTC (rev 41)
++++ trunk/code/Reference.cpp	2006-04-28 15:26:13 UTC (rev 42)
+@@ -13,7 +13,8 @@
+ 		{
+ 		case AddressIndirect:
+ 			hasAddress = true;
+-			address = g_cpu.a[ reg ];
++//			address = g_cpu.a[ reg ];
++			address = g_cpu.addrs.read( reg, Word::Address );
+ 			break;
+ 		case Absolute:
+ 			hasAddress = true;
+@@ -60,20 +61,32 @@
+ 				break;
+ 			case AddressDirect:
+ 				hasValue = true;
+-				value = g_cpu.a[ reg ];
++//				value = g_cpu.a[ reg ];
++				value = g_cpu.addrs.read( reg, Word::Address );
+ 				break;
+ 			case AddressIndirect:
+ 				hasValue = true;
+-				value = g_mem.read( g_cpu.a[ reg ], Word::Data );
++//				value = g_mem.read( g_cpu.a[ reg ], Word::Data );
++				value = g_mem.read( g_cpu.addrs.read( reg, Word::Address ), Word::Data );
+ 				break;
+ 			case PostIncrement:
+-				value = g_mem.read( g_cpu.a[ reg ], Word::Data );
+-				++( g_cpu.a[ reg ]);
++//				value = g_mem.read( g_cpu.a[ reg ], Word::Data );
++//				++( g_cpu.a[ reg ]);
++				{
++				unsigned short address = g_cpu.addrs.read( reg, Word::Address );
++				value = g_mem.read( address, Word::Data );
++				g_cpu.addrs.write( reg, Word::Address, address + 1 );
+ 				break;
++				}
+ 			case PreDecrement:
+-				--( g_cpu.a[ reg ]);
+-				value = g_mem.read( g_cpu.a[ reg ], Word::Data );
++//				--( g_cpu.a[ reg ]);
++//				value = g_mem.read( g_cpu.a[ reg ], Word::Data );
++				{
++				unsigned short address = g_cpu.addrs.read( reg, Word::Address );
++				value = g_mem.read( address - 1, Word::Data );
++				g_cpu.addrs.write( reg, Word::Address, address - 1 );
+ 				break;
++				}
+ 			case Absolute:
+ 				hasValue = true;
+ 				value = g_mem.read( address, Word::Data  );
+@@ -94,19 +107,31 @@
+ 				g_cpu.regs.write( reg, Word::Data, newValue );
+ 				break;
+ 			case AddressDirect:
+-				g_cpu.a[ reg ] = newValue;
++//				g_cpu.a[ reg ] = newValue;
++				g_cpu.addrs.write( reg, Word::Address, newValue );
+ 				break;
+ 			case AddressIndirect:
+-				g_mem.write( g_cpu.a[ reg ], Word::Data, newValue );
++//				g_mem.write( g_cpu.a[ reg ], Word::Data, newValue );
++				g_mem.write( g_cpu.addrs.read( reg, Word::Address ), Word::Data, newValue );
+ 				break;
+ 			case PostIncrement:
+-				g_mem.write( g_cpu.a[ reg ], Word::Data, newValue );
+-				++( g_cpu.a[ reg ]);
++//				g_mem.write( g_cpu.a[ reg ], Word::Data, newValue );
++//				++( g_cpu.a[ reg ]);
++				{
++				unsigned short address = g_cpu.addrs.read( reg, Word::Address );
++				g_mem.write( address, Word::Data, newValue );
++				g_cpu.addrs.write( reg, Word::Address, address + 1 );
+ 				break;
++				}
+ 			case PreDecrement:
+-				--( g_cpu.a[ reg ]);
+-				g_mem.write( g_cpu.a[ reg ], Word::Data, newValue );
++//				--( g_cpu.a[ reg ]);
++//				g_mem.write( g_cpu.a[ reg ], Word::Data, newValue );
++				{
++				unsigned short address = g_cpu.addrs.read( reg, Word::Address );
++				g_mem.write( address - 1, Word::Data, newValue );
++				g_cpu.addrs.write( reg, Word::Address, address - 1 );
+ 				break;
++				}
+ 			case Absolute:
+ 				g_mem.write( address, Word::Data, newValue );
+ 				break;
+
+Modified: trunk/code/Sequence.cpp
+===================================================================
+--- trunk/code/Sequence.cpp	2006-04-28 13:47:39 UTC (rev 41)
++++ trunk/code/Sequence.cpp	2006-04-28 15:26:13 UTC (rev 42)
+@@ -17,9 +17,9 @@
+ 	 
+ 	lex &lt;&lt; sourceText;
+ 
+-	//windows specific kludge. please leave in place
+-	//otherwise windows will eat your babies
+-	// &lt;mike&gt;Windows is wrong&lt;/mike&gt;
++	// &lt;matt&gt; windows specific kludge. please leave in place
++	//        otherwise windows will eat your babies &lt;/matt&gt;
++	// &lt;mike&gt; Windows is wrong! &lt;/mike&gt;
+ 	if (sourceText.empty())
+ 		{
+ 		 //Token t_t (Token::EndLine); //edit this line
+
+Modified: trunk/code/SystemView.cpp
+===================================================================
+--- trunk/code/SystemView.cpp	2006-04-28 13:47:39 UTC (rev 41)
++++ trunk/code/SystemView.cpp	2006-04-28 15:26:13 UTC (rev 42)
+@@ -137,6 +137,31 @@
+ 			angle += m_angleStep;
+ 			}
+ 
++		glLineWidth( 2.0 );
++
++		// draw address registers
++		for ( unsigned reg = 0; reg &lt;= 7; ++reg )
++			{
++			unsigned short addr = g_cpu.addr( reg ).peek();
++			if ( addr &lt; memSize )
++				{
++				float intensity;
++				switch ( g_cpu.addr( reg ).age())
++					{
++					case 0: intensity = 1.0; break;
++					case 1: intensity = 0.8; break;
++					case 2: intensity = 0.6; break;
++					case 3: intensity = 0.4; break;
++					default: intensity = 0.2;
++					}
++				Color::palette[&quot;address&quot;].scaleValue( intensity ).set();
++
++				gotoPoint( m_angleStep * ( addr + 1 ), m_pathRadius );
++					drawCircle( 1.1 * m_circleRadius, stroke );
++				glPopMatrix();
++				}
++			}
++
+ 		Color().set(); // default color
+ 		glPointSize( 3 );
+ 
+@@ -146,7 +171,6 @@
+ 		drawPoint(( memSize + 3.0 ) / m_spaces, m_pathRadius );
+ 
+ 		// begin / end boundary
+-		glLineWidth( 2 );
+ 		drawLine( 0, m_pathRadius - 0.1, m_pathRadius + 0.1 );
+ 		glLineWidth( 1 ); // back to the default -- could push/pop
+ 		}
+@@ -165,7 +189,7 @@
+ 
+ 		float angle = 1.5 * angleStep;
+ 
+-		// draw registers
++		// draw data registers
+ 		for ( unsigned reg = 0; reg &lt;= 7; ++reg )
+ 			{
+ 			float intensity;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000012.html">[Halttool-dev] r41 - trunk/code
+</A></li>
+	<LI>Next message: <A HREF="000014.html">[Halttool-dev] r43 - trunk/code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#13">[ date ]</a>
+              <a href="thread.html#13">[ thread ]</a>
+              <a href="subject.html#13">[ subject ]</a>
+              <a href="author.html#13">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/halttool-dev">More information about the Halttool-dev
+mailing list</a><br>
+</body></html>

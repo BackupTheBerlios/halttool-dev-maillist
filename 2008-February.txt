@@ -1,0 +1,149 @@
+From admin at berlios.de  Sun Feb 10 08:28:25 2008
+From: admin at berlios.de (admin at berlios.de)
+Date: Sun, 10 Feb 2008 01:28:25 -0600 (CST)
+Subject: [Halttool-dev] [Task #2785] Formal Specifications
+Message-ID: <200802100728.m1A7SP0l009714@unicorn.berlios.de>
+
+Task #2785 has been updated. 
+
+Project: Humane Assembly Language Tools
+Subproject: Documentation
+Summary: Formal Specifications
+Priority: 6
+Percent Complete: 100%
+Status: Closed
+Authority  : twinbee
+Assigned to: twinbee, merwin
+
+Description: Required for the project
+
+Follow-Ups:
+
+-------------------------------------------------------
+Date: 2006-Feb-19 00:37
+By: twinbee
+
+Comment:
+This requirement will be covered by giving the link to the BerliOS website :).
+
+-------------------------------------------------------
+Date: 2006-Feb-18 20:52
+By: merwin
+
+Comment:
+I'll prepare a general overview of HALT's internals, but extensive technical docs go against what this project is all about.
+
+-------------------------------------------------------
+For more info, visit:
+
+http://developer.berlios.de/pm/task.php?func=detailtask&project_task_id=2785&group_id=6059&group_project_id=1345
+
+
+From admin at berlios.de  Sun Feb 10 08:29:33 2008
+From: admin at berlios.de (admin at berlios.de)
+Date: Sun, 10 Feb 2008 01:29:33 -0600 (CST)
+Subject: [Halttool-dev] [Task #2793] Linking OPCODES
+Message-ID: <200802100729.m1A7TXE6012038@unicorn.berlios.de>
+
+Task #2793 has been updated. 
+
+Project: Humane Assembly Language Tools
+Subproject: Code Linking
+Summary: Linking OPCODES
+Priority: 5
+Percent Complete: 0%
+Status: Closed
+Authority  : twinbee
+Assigned to: none
+
+Description: link the opcodes to the Green dots
+
+Follow-Ups:
+
+-------------------------------------------------------
+Date: 2008-Feb-10 01:29
+By: merwin
+
+Comment:
+wha???
+
+-------------------------------------------------------
+For more info, visit:
+
+http://developer.berlios.de/pm/task.php?func=detailtask&project_task_id=2793&group_id=6059&group_project_id=1347
+
+
+From admin at berlios.de  Sun Feb 10 08:30:30 2008
+From: admin at berlios.de (admin at berlios.de)
+Date: Sun, 10 Feb 2008 01:30:30 -0600 (CST)
+Subject: [Halttool-dev] [Task #2794] linking variables
+Message-ID: <200802100730.m1A7UUkF013950@unicorn.berlios.de>
+
+Task #2794 has been updated. 
+
+Project: Humane Assembly Language Tools
+Subproject: Code Linking
+Summary: linking variables
+Priority: 5
+Percent Complete: 0%
+Status: Closed
+Authority  : twinbee
+Assigned to: none
+
+Description: Link variables to blue dots and to their respective labels
+
+Follow-Ups:
+
+-------------------------------------------------------
+Date: 2008-Feb-10 01:30
+By: merwin
+
+Comment:
+data words can be inspected, but this doesn't tell you their place within the data section.
+
+-------------------------------------------------------
+For more info, visit:
+
+http://developer.berlios.de/pm/task.php?func=detailtask&project_task_id=2794&group_id=6059&group_project_id=1347
+
+
+From admin at berlios.de  Sun Feb 10 08:39:43 2008
+From: admin at berlios.de (admin at berlios.de)
+Date: Sun, 10 Feb 2008 01:39:43 -0600 (CST)
+Subject: [Halttool-dev] [Bug #6568] Sequence seems to be broken on 'word'
+Message-ID: <200802100739.m1A7dhgV002455@unicorn.berlios.de>
+
+Bug #6568, was updated on 2006-Feb-24 05:37
+Here is a current snapshot of the bug.
+
+Project: Humane Assembly Language Tools
+Category: None
+Status: Closed
+Resolution: Fixed
+Bug Group: None
+Priority: 5
+Submitted by: twinbee
+Assigned to : merwin
+Summary: Sequence seems to be broken on 'word'
+
+Details: Sequence seems to not recognize 'word' with a label. The environment flags anything other than 'word' by itself as an error. I am not sure when this was broken.
+
+Follow-Ups:
+
+Date: 2008-Feb-10 01:39
+By: merwin
+
+Comment:
+Data definitions work fine in the current code, with or without labels:
+word
+word = 5
+a word
+b word = 6
+c word[10]
+d word[10] = 7,8,9,10 ; rest filled with zero (or are they?)
+-------------------------------------------------------
+
+For detailed info, follow this link:
+http://developer.berlios.de/bugs/?func=detailbug&bug_id=6568&group_id=6059
+
+

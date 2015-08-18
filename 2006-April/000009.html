@@ -1,0 +1,543 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Halttool-dev] r38 - trunk/code
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/halttool-dev/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:halttool-dev%40lists.berlios.de?Subject=Re%3A%20%5BHalttool-dev%5D%20r38%20-%20trunk/code&In-Reply-To=%3C200604280917.k3S9H6XB015712%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000008.html">
+   <LINK REL="Next"  HREF="000010.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Halttool-dev] r38 - trunk/code</H1>
+    <B>merwin at BerliOS</B> 
+    <A HREF="mailto:halttool-dev%40lists.berlios.de?Subject=Re%3A%20%5BHalttool-dev%5D%20r38%20-%20trunk/code&In-Reply-To=%3C200604280917.k3S9H6XB015712%40sheep.berlios.de%3E"
+       TITLE="[Halttool-dev] r38 - trunk/code">merwin at berlios.de
+       </A><BR>
+    <I>Fri Apr 28 11:17:06 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000008.html">[Halttool-dev] r37 - trunk/code
+</A></li>
+        <LI>Next message: <A HREF="000010.html">[Halttool-dev] r39 - in trunk: code docs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: merwin
+Date: 2006-04-28 11:17:06 +0200 (Fri, 28 Apr 2006)
+New Revision: 38
+
+Modified:
+   trunk/code/Lexer.cpp
+   trunk/code/Memory.cpp
+   trunk/code/Memory.h
+   trunk/code/Processor.cpp
+   trunk/code/Processor.h
+   trunk/code/Program.cpp
+   trunk/code/ProgramEditor.cpp
+   trunk/code/Sequence.cpp
+   trunk/code/Sequence.h
+Log:
+Binding crash fixed.
+BEQ and BNE added.
+CMP and logical ops have to wait until morning!
+
+
+Modified: trunk/code/Lexer.cpp
+===================================================================
+--- trunk/code/Lexer.cpp	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Lexer.cpp	2006-04-28 09:17:06 UTC (rev 38)
+@@ -9,7 +9,7 @@
+ 	opcodes.insert(&quot;move&quot;);
+ 	opcodes.insert(&quot;lea&quot;);
+ 
+-//	opcodes.insert(&quot;cmp&quot;);
++	opcodes.insert(&quot;cmp&quot;);
+ 	opcodes.insert(&quot;add&quot;);
+ 	opcodes.insert(&quot;sub&quot;);
+ 	opcodes.insert(&quot;mul&quot;);
+@@ -24,8 +24,8 @@
+ 	opcodes.insert(&quot;stop&quot;);
+ 	
+ 	opcodes.insert(&quot;bra&quot;);
+-//	opcodes.insert(&quot;beq&quot;);
+-//	opcodes.insert(&quot;bne&quot;);
++	opcodes.insert(&quot;beq&quot;);
++	opcodes.insert(&quot;bne&quot;);
+ 	
+ 	dataTypes.insert(&quot;word&quot;);
+ 	// No more data types for the pure 16-bit version!
+@@ -130,9 +130,11 @@
+ 		}
+ 	else if ( !token.text.empty() )	// command, opcode, or number base
+ 		{
+-/*		if (( commands.find( token.text )) != commands.end() )
+-			token.type = Token::Command;
+-		else*/ if (( opcodes.find( token.text )) != opcodes.end() )
++//		if (( commands.find( token.text )) != commands.end() )
++//			token.type = Token::Command;
++//		else
++
++		if (( opcodes.find( token.text )) != opcodes.end() )
+ 			token.type = Token::Opcode;
+ 		else if (( dataTypes.find( token.text )) != dataTypes.end() )
+ 			token.type = Token::DataType;
+
+Modified: trunk/code/Memory.cpp
+===================================================================
+--- trunk/code/Memory.cpp	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Memory.cpp	2006-04-28 09:17:06 UTC (rev 38)
+@@ -15,8 +15,9 @@
+ 		contents.push_back( Word( *i, seq.type()));
+ 	}
+ 
+-void Memory::operator &lt;&lt; ( const Program&amp; prog )
++void Memory::operator &lt;&lt; ( Program&amp; prog )
+ 	{
++	prog.bind();
+ 	prog.dump( cout );
+ 
+ 	for ( vector&lt;Sequence&gt;::const_iterator i = prog.lines().begin(); i != prog.lines().end(); ++i )
+
+Modified: trunk/code/Memory.h
+===================================================================
+--- trunk/code/Memory.h	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Memory.h	2006-04-28 09:17:06 UTC (rev 38)
+@@ -16,7 +16,7 @@
+ 	
+ 	// append machine code
+ 	void operator &lt;&lt; ( const Sequence&amp; );
+-	void operator &lt;&lt; ( const Program&amp; );
++	void operator &lt;&lt; ( Program&amp; );
+ 
+ 	unsigned short size() const;
+ 
+
+Modified: trunk/code/Processor.cpp
+===================================================================
+--- trunk/code/Processor.cpp	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Processor.cpp	2006-04-28 09:17:06 UTC (rev 38)
+@@ -76,17 +76,20 @@
+ 		{ &quot;move&quot;, 0x3000, 0xf000, (Method) &amp;Processor::exec_move },
+ 		{ &quot;lea&quot;,  0x41c0, 0xf1c0, (Method) &amp;Processor::exec_lea },
+ 
++//		{ &quot;cmp&quot;,  0xb040, 0xf0c0, (Method) &amp;Processor::exec_cmp },
+ 		{ &quot;add&quot;,  0xd040, 0xf0c0, (Method) &amp;Processor::exec_add },
+ 		{ &quot;sub&quot;,  0x9040, 0xf0c0, (Method) &amp;Processor::exec_sub },
+ 		{ &quot;mul&quot;,  0xc1c0, 0xf1c0, (Method) &amp;Processor::exec_mul },
+ 		{ &quot;div&quot;,  0x81c0, 0xf1c0, (Method) &amp;Processor::exec_div },
+ 
+-		{ &quot;and&quot;,  0xc040, 0xf0c0, (Method) &amp;Processor::exec_and },
+-		{ &quot;or&quot;,   0x8040, 0xf0c0, (Method) &amp;Processor::exec_or },
+-		{ &quot;eor&quot;,  0xb140, 0xf1c0, (Method) &amp;Processor::exec_eor },
+-		{ &quot;not&quot;,  0x4640, 0xffc0, (Method) &amp;Processor::exec_not },
++//		{ &quot;and&quot;,  0xc040, 0xf0c0, (Method) &amp;Processor::exec_and },
++//		{ &quot;or&quot;,   0x8040, 0xf0c0, (Method) &amp;Processor::exec_or },
++//		{ &quot;eor&quot;,  0xb140, 0xf1c0, (Method) &amp;Processor::exec_eor },
++//		{ &quot;not&quot;,  0x4640, 0xffc0, (Method) &amp;Processor::exec_not },
+ 
+ 		{ &quot;bra&quot;,  0x6000, 0xffff, (Method) &amp;Processor::exec_bra },
++		{ &quot;beq&quot;,  0x6700, 0xffff, (Method) &amp;Processor::exec_beq },
++		{ &quot;bne&quot;,  0x6600, 0xffff, (Method) &amp;Processor::exec_bne },
+ 
+ 		{ &quot;nop&quot;,  0x4e75, 0xffff, (Method) &amp;Processor::exec_nop },
+ 		{ &quot;stop&quot;, 0x4e72, 0xffff, (Method) &amp;Processor::exec_stop },
+@@ -153,6 +156,24 @@
+ 	dest.write( src.getAddress());
+ 	}
+ 
++//void Processor::exec_cmp()
++//	{
++//	EA dataReg( EA::DataDirect, ir.extract( 9, 3 ));
++//	EA ea( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
++//
++//	bool eaIsDest = (bool) ir.extract( 8 );
++//
++//	Reference src( eaIsDest ? dataReg : ea );
++//	Reference dest( eaIsDest ? ea : dataReg );
++//	
++//	if ( eaIsDest &amp;&amp; !dest.inCategory( EA::alterable | EA::memory ))
++//		throw string(&quot;destination must be alterable memory&quot;);
++//	
++//	short result = dest.read() - src.read();
++//
++//	setFlags( result );
++//	}
++
+ void Processor::exec_add()
+ 	{
+ 	EA dataReg( EA::DataDirect, ir.extract( 9, 3 ));
+@@ -224,66 +245,81 @@
+ 	setFlags( result );
+ 	}
+ 
+-void Processor::exec_and()
+-	{
+-	throw string(&quot;under construction&quot;);
+-
+-//	Reference src( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
+-//	Reference dest( ir.extract( 6, 3 ), ir.extract( 9, 3 ));
++//void Processor::exec_and()
++//	{
++//	throw string(&quot;under construction&quot;);
+ //
+-//	short result = src.read() &amp; dest.read();
++////	Reference src( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
++////	Reference dest( ir.extract( 6, 3 ), ir.extract( 9, 3 ));
++////
++////	short result = src.read() &amp; dest.read();
++////
++////	dest.write( result );
++////	setFlags( result );
++//	}
+ //
+-//	dest.write( result );
+-//	setFlags( result );
+-	}
+-
+-void Processor::exec_or()
+-	{
+-	throw string(&quot;under construction&quot;);
+-
+-//	Reference src( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
+-//	Reference dest( ir.extract( 6, 3 ), ir.extract( 9, 3 ));
++//void Processor::exec_or()
++//	{
++//	throw string(&quot;under construction&quot;);
+ //
+-//	short result = src.read() | dest.read();
++////	Reference src( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
++////	Reference dest( ir.extract( 6, 3 ), ir.extract( 9, 3 ));
++////
++////	short result = src.read() | dest.read();
++////
++////	dest.write( result );
++////	setFlags( result );
++//	}
+ //
+-//	dest.write( result );
+-//	setFlags( result );
+-	}
+-
+-void Processor::exec_eor()
+-	{
+-	throw string(&quot;under construction&quot;);
+-
+-//	Reference src( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
+-//	Reference dest( ir.extract( 6, 3 ), ir.extract( 9, 3 ));
++//void Processor::exec_eor()
++//	{
++//	throw string(&quot;under construction&quot;);
+ //
+-//	short result = src.read() ^ dest.read();
++////	Reference src( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
++////	Reference dest( ir.extract( 6, 3 ), ir.extract( 9, 3 ));
++////
++////	short result = src.read() ^ dest.read();
++////
++////	dest.write( result );
++////	setFlags( result );
++//	}
+ //
+-//	dest.write( result );
+-//	setFlags( result );
+-	}
+-
+-void Processor::exec_not()
+-	{
+-	throw string(&quot;under construction&quot;);
+-
+-//	Reference dest( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
++//void Processor::exec_not()
++//	{
++//	throw string(&quot;under construction&quot;);
+ //
+-//	short result = ~ dest.read();
+-//
+-//	dest.write( result );
+-//	setFlags( result );
+-	}
++////	Reference dest( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
++////
++////	short result = ~ dest.read();
++////
++////	dest.write( result );
++////	setFlags( result );
++//	}
+ 
+ void Processor::exec_nop()
+ 	{ /* do nothing! */ }
+ 
+ void Processor::exec_bra()
+ 	{
+-	// might not be quite correct, but it's competition time!
+-	pc = fetch();
++	pc = fetch();	// not quite authentic, but it's competition time!
+ 	}
+ 
++void Processor::exec_beq()
++	{
++	unsigned short target = fetch();
++	if ( zero())
++		pc = target; // not quite authentic, but it's competition time!
++	}
++
++void Processor::exec_bne()
++	{
++	unsigned short target = fetch();
++	if ( ! zero())
++		pc = target; // not quite authentic, but it's competition time!
++	else
++		cout &lt;&lt; &quot;moving on...&quot; &lt;&lt; endl;
++	}
++
+ void Processor::exec_stop()
+ 	{ m_running = false; }
+ 
+
+Modified: trunk/code/Processor.h
+===================================================================
+--- trunk/code/Processor.h	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Processor.h	2006-04-28 09:17:06 UTC (rev 38)
+@@ -48,17 +48,20 @@
+ 	void exec_move();
+ 	void exec_lea();
+ 
++//	void exec_cmp();
+ 	void exec_add();
+ 	void exec_sub();
+ 	void exec_mul();
+ 	void exec_div();
+ 
+-	void exec_and();
+-	void exec_or();
+-	void exec_eor();
+-	void exec_not();
++//	void exec_and();
++//	void exec_or();
++//	void exec_eor();
++//	void exec_not();
+ 
+ 	void exec_bra();
++	void exec_beq();
++	void exec_bne();
+ 	
+ 	void exec_nop();
+ 	void exec_stop();
+
+Modified: trunk/code/Program.cpp
+===================================================================
+--- trunk/code/Program.cpp	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Program.cpp	2006-04-28 09:17:06 UTC (rev 38)
+@@ -78,25 +78,32 @@
+ 
+ void Program::bind()
+ 	{
++	map&lt; string, unsigned short &gt; symbols;
+ 	try {
+-		map&lt; string, unsigned short &gt; symbols;
++		vector&lt;Sequence&gt;::iterator seq;
+ 		unsigned address = 0;
+ 
+ 		// build symbols on first pass
+-		for ( vector&lt;Sequence&gt;::iterator i = m_lines.begin(); i != m_lines.end(); ++i )
++		for ( seq = m_lines.begin(); seq != m_lines.end(); ++seq )
+ 			{
+-			i-&gt;address( address );			// set sequence's address
+-
+-			string name = i-&gt;name();
++			string name = seq-&gt;name();
+ 			if ( ! name.empty())
+-				symbols[ name ] = address;
++				{
++				if ( symbols.find( name ) == symbols.end() )
++					{
++					cout &lt;&lt; &quot;adding {&quot; &lt;&lt; name &lt;&lt; &quot;,&quot; &lt;&lt; address &lt;&lt; &quot;}&quot; &lt;&lt; endl;
++					symbols[ name ] = address;
++					}
++				else
++					throw string(&quot;'&quot;) + name + &quot;' is already defined&quot;;
++				}
+ 
+-			address += i-&gt;code().size();	// bump counter
++			address += seq-&gt;code().size();	// bump offset
+ 			}
+ 
+ 		// resolve symbols on second pass
+-		for ( vector&lt;Sequence&gt;::iterator i = m_lines.begin(); i != m_lines.end(); ++i )
+-			i-&gt;bind( symbols );
++		for ( seq = m_lines.begin(); seq != m_lines.end(); ++seq )
++			seq-&gt;bind( symbols );
+ 		}
+ 	catch ( string message )
+ 		{
+
+Modified: trunk/code/ProgramEditor.cpp
+===================================================================
+--- trunk/code/ProgramEditor.cpp	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/ProgramEditor.cpp	2006-04-28 09:17:06 UTC (rev 38)
+@@ -34,7 +34,8 @@
+ 	bounds.w = m_program-&gt;lineLength() * fontWidth + 2 * margin;
+ 	bounds.h = m_program-&gt;lineCount() * ( fontHeight + leading ) - leading + 2 * margin;
+ 	
+-	m_program-&gt;bind();
++	// weird place for this...
++//	m_program-&gt;bind();
+ 	g_mem.clear();
+ 	g_mem &lt;&lt; *m_program;
+ 	}
+
+Modified: trunk/code/Sequence.cpp
+===================================================================
+--- trunk/code/Sequence.cpp	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Sequence.cpp	2006-04-28 09:17:06 UTC (rev 38)
+@@ -53,21 +53,18 @@
+ 		if ( symbol != symbols.end())
+ 			m_code[ i-&gt;offset ] = symbol-&gt;second; // we want the numeric address
+ 		else
+-			throw string(&quot;'&quot;) + i-&gt;name + &quot;' is a mystery symbol&quot;;
++			throw string(&quot;'&quot;) + i-&gt;name + &quot;' is not defined&quot;;
+ 		}
+ 	}
+ 
+ Word::Type Sequence::type() const
+ 	{ return m_type; }
+ 
+-unsigned short Sequence::address() const
+-	{ return m_address; }
+-
+-void Sequence::address( unsigned short newAddress )
+-	{ m_address = newAddress; }
+-
+ const string Sequence::name() const
+ 	{
++	if ( m_tokens.empty())
++		return &quot;&quot;;
++
+ 	const Token&amp; tok = m_tokens.front();
+ 
+ 	if ( tok.is( Token::Label ))
+@@ -108,6 +105,7 @@
+ 		table[&quot;move&quot;] = EncodeEntry( 0x3000, (Method) &amp;Sequence::asm_move );
+ 		table[&quot;lea&quot;]  = EncodeEntry( 0x41c0, (Method) &amp;Sequence::asm_lea );
+ 
++		table[&quot;cmp&quot;]  = EncodeEntry( 0xb040, (Method) &amp;Sequence::asm_add_sub );
+ 		table[&quot;add&quot;]  = EncodeEntry( 0xd040, (Method) &amp;Sequence::asm_add_sub );
+ 		table[&quot;sub&quot;]  = EncodeEntry( 0x9040, (Method) &amp;Sequence::asm_add_sub );
+ 		table[&quot;mul&quot;]  = EncodeEntry( 0xc1c0, (Method) &amp;Sequence::asm_mul_div );
+@@ -118,7 +116,9 @@
+ 		table[&quot;eor&quot;]  = EncodeEntry( 0xb140, (Method) &amp;Sequence::asm_eor );
+ 		table[&quot;not&quot;]  = EncodeEntry( 0x4640, (Method) &amp;Sequence::asm_not );
+ 		
+-		table[&quot;bra&quot;]  = EncodeEntry( 0x6000, (Method) &amp;Sequence::asm_bra );
++		table[&quot;bra&quot;]  = EncodeEntry( 0x6000, (Method) &amp;Sequence::asm_branch );
++		table[&quot;beq&quot;]  = EncodeEntry( 0x6700, (Method) &amp;Sequence::asm_branch );
++		table[&quot;bne&quot;]  = EncodeEntry( 0x6600, (Method) &amp;Sequence::asm_branch );
+ 
+ 		table[&quot;nop&quot;]  = EncodeEntry( 0x4e75, NULL );
+ 		table[&quot;stop&quot;] = EncodeEntry( 0x4e72, NULL );
+@@ -128,6 +128,8 @@
+ 
+ 	// ------------------------------------------------------
+ 
++	m_crossRefs.clear();
++
+ 	if ( m_tokens.empty() || m_tokens.begin()-&gt;is( Token::Comment ))
+ 		return;	// blank lines are okay
+ 
+@@ -300,7 +302,7 @@
+ 	else if ( token-&gt;is( Token::Label ))
+ 		{
+ 		ea = EA( EA::Absolute, 0 );
+-		m_crossRefs.push_back((CrossReference){ token-&gt;text, m_code.size() });
++		m_crossRefs.push_back( CrossReference( token-&gt;text, m_code.size()));
+ 		m_code.push_back( 0 ); // placeholder until names are bound
+ 		++token;
+ 		}
+@@ -442,7 +444,7 @@
+ 	opWord.insert( dest.mode, 3, 3 );
+ 	}
+ 
+-void Sequence::asm_bra()
++void Sequence::asm_branch()
+ 	{
+ 	EA target = parseOperand();
+ 	if ( target.mode != EA::Absolute )
+
+Modified: trunk/code/Sequence.h
+===================================================================
+--- trunk/code/Sequence.h	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Sequence.h	2006-04-28 09:17:06 UTC (rev 38)
+@@ -22,12 +22,15 @@
+ 	std::vector&lt; Token &gt; m_tokens;
+ 	std::vector&lt; short &gt; m_code;
+ 	std::vector&lt; std::string &gt; m_errors;
+-	unsigned short m_address;
+ 
+ 	struct CrossReference
+ 		{
+ 		std::string name;
+ 		unsigned short offset;
++		
++		CrossReference( std::string n, unsigned short o )
++			: name(n), offset(o)
++			{ }
+ 		};
+ 
+ 	std::vector&lt; CrossReference &gt; m_crossRefs;
+@@ -49,7 +52,7 @@
+ 	void asm_eor();
+ 	void asm_not();
+ 
+-	void asm_bra();
++	void asm_branch();
+ 
+ public:
+ 	Sequence( std::string sourceText );
+@@ -59,9 +62,6 @@
+ 
+ 	Word::Type type() const;
+ 
+-	unsigned short address() const;
+-	void address( unsigned short );
+-
+ 	const std::string name() const;
+ 	const std::string&amp; source() const;
+ 	const std::vector&lt; Token &gt;&amp; tokens() const;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000008.html">[Halttool-dev] r37 - trunk/code
+</A></li>
+	<LI>Next message: <A HREF="000010.html">[Halttool-dev] r39 - in trunk: code docs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/halttool-dev">More information about the Halttool-dev
+mailing list</a><br>
+</body></html>

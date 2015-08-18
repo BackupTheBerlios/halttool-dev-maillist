@@ -1,0 +1,1997 @@
+From twinbee at berlios.de  Thu Apr 27 22:03:09 2006
+From: twinbee at berlios.de (twinbee at berlios.de)
+Date: Thu, 27 Apr 2006 22:03:09 +0200
+Subject: [Halttool-dev] r35 - trunk/docs
+Message-ID: <200604272003.k3RK39q5025722@sheep.berlios.de>
+
+Author: twinbee
+Date: 2006-04-27 22:02:49 +0200 (Thu, 27 Apr 2006)
+New Revision: 35
+
+Added:
+   trunk/docs/specifications.aux
+   trunk/docs/specifications.dvi
+   trunk/docs/specifications.pdf
+   trunk/docs/specifications.tex
+   trunk/docs/titlepage.tex
+Modified:
+   trunk/docs/
+Log:
+added some documents
+
+
+Property changes on: trunk/docs
+___________________________________________________________________
+Name: svn:ignore
+   + specifications.log
+specifications.out
+specifications.tex.bak
+specifications.idx
+
+
+Added: trunk/docs/specifications.aux
+===================================================================
+--- trunk/docs/specifications.aux	2006-02-28 23:48:27 UTC (rev 34)
++++ trunk/docs/specifications.aux	2006-04-27 20:02:49 UTC (rev 35)
+@@ -0,0 +1,25 @@
++\relax 
++\ifx\hyper at anchor\@undefined
++\global \let \oldcontentsline\contentsline
++\gdef \contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
++\global \let \oldnewlabel\newlabel
++\gdef \newlabel#1#2{\newlabelxx{#1}#2}
++\gdef \newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
++\AtEndDocument{\let \contentsline\oldcontentsline
++\let \newlabel\oldnewlabel}
++\else
++\global \let \hyper at last\relax 
++\fi
++
++\citation{phil}
++\citation{user}
++\citation{home}
++\citation{berlios}
++\citation{moto}
++\citation{phil}
++\citation{moto}
++\bibcite{moto}{1}
++\bibcite{user}{2}
++\bibcite{phil}{3}
++\bibcite{berlios}{4}
++\bibcite{home}{5}
+
+Added: trunk/docs/specifications.dvi
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/docs/specifications.dvi
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: trunk/docs/specifications.pdf
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/docs/specifications.pdf
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: trunk/docs/specifications.tex
+===================================================================
+--- trunk/docs/specifications.tex	2006-02-28 23:48:27 UTC (rev 34)
++++ trunk/docs/specifications.tex	2006-04-27 20:02:49 UTC (rev 35)
+@@ -0,0 +1,180 @@
++\documentclass[10pt,fullpage]{article}
++
++\usepackage{hyperref}                 % For creating hyperlinks in cross references
++%\usepackage{ieee8}
++\usepackage{times}
++
++\topmargin -1.5cm \oddsidemargin -0.04cm \evensidemargin -0.04cm
++\textwidth 16.00cm \textheight 23.50cm
++\parskip 7.2pt
++\parindent 0.25in
++
++\makeindex
++
++\title{ Humane Assembly Language Tools \\ Software Specification}
++
++
++\author{Matthew Bennett, Michael Erwin \\
++{{\em School of Computing. University of Southern Mississippi.
++Hattiesburg, MS 39406 } } \\ {\em matthew.bennett at usm.edu,
++michael.erwin at usm.edu } }
++
++\date{ }
++
++\begin{document}
++\maketitle
++
++\section*{Statement of Purpose}
++
++The Humane Assembly Language Tools (HALT) project seeks to provide a
++simple and efficient development and execution environment for the
++transition from higher level languages.
++
++HALT is a toolkit for user-friendly development and inspection of
++Motorola 68000 assembly language. The philosophy behind HALT is to
++make assembly language as accessible as possible to a broad audience
++of programmers. That philosophy is realized through a simple,
++colorful human interface, connecting the user to advanced tools such
++as a powerful lexxer/parser, a bare M68000 machine language
++interpreter, an M68000 assembler and translator, and various
++debugging and execution tools.
++
++HALT provides a simplified run-time visualization for the internal
++working environment of a virtual M68000 machine. The visualization
++updates the state of the stack as new code is typed into the working
++project. The simulator is also a visualization environment for
++program execution, and displays the contents of registers and memory
++as it occurs once the assembly instructions have been successfully
++translated and interpreted. All this is done at development time,
++within one simple and easy-to-use framework, so the developer?s time
++to product is minimized. HALT also functions well in a teaching
++environment, as it follows the KISS principle: Make everything as
++simple as possible, but no simpler. The bright and simple display of
++information make the user interface a fun and powerful way to learn
++and develop Motorola 68000 assembly language code.
++
++HALT is also a tool for developers. HALT produces only machine
++instructions which are in a strict subset of the Motorola 68000
++machine instruction set. Therefore, any program in HALT should also
++run on any machine that implements the basic 68000 instruction set.
++
++This document provides a guideline for the software development
++process. The content should reflect those points expressed in the
++HALT philosophy\cite{phil}. All specifications outlined herein are
++mutable if they do not reflect the later choices of the developers.
++
++\section*{Platform}
++
++To provide the widest accessability to academia, HALT will be
++cross-platform. Target platforms are Microsoft Windows (2000, XP,
++Vista, and NT), Linux (xorg), and OS X. Portable source code will be
++available so that HALT may be transferred to future desirable
++platforms with minimal effort.
++
++\subsection*{Implementation Language}
++
++All code associated with HALT must be written in C++. Libraries used
++will be cmath, STL, OpenGL, and GLUT. Any other libraries must be
++dynamically compiled, and must run on Windows, Linux, and Windows.
++All code associated with HALT must be written to compile and run on
++Windows, Linux, and Apple OS X.
++
++\subsection*{Development Process}
++
++Fully collaborative development will be accomplished using a
++non-locking version control (merging) version control system,
++subversion. It will also allow easy maintenance of code branches,
++and to ``rewind'' mal-appropriate code changes. The code for all
++versions after the initial release are browseable with change logs
++and blame tags.
++
++\subsection*{Program Design}
++
++HALT will consist of several object modules, each with its own
++responsibility. Since HALT is an integrated development environment
++consisting of an editor, simulator, and machine inspector,
++functionality will be tightly coupled within objects. The User's
++Guide \cite{user} provides as an Appendix the class dependency and
++class inheritance diagrams.
++
++\subsection*{Documentation}
++
++Good documentation is extremely important, as the product will be
++used primarily within academia. User support, bug tracking, and
++feature requests are also imperative.
++
++All documents, including this one, will be written in the \LaTeX
++typesetting system, and made available in both .PDF and bound hard
++copy. This is so it can be treated as source code in the subversion
++version control system, as well as providing for later publication
++of reference materials.
++
++Two web sites will be provided. A General web site will provide
++news, release versions, documentation, and contact information, and
++can be found at \cite{home}. A more extensive development site will
++provide bug tracking, feature requests, a discussion forum, version
++control with code rollback, multi-lingual Wiki, mailing lists, task
++assignment, and other features. It is located at \cite{berlios}.
++
++\subsection*{Assembly Language Features}
++
++The language shall be a subset of Motorola 68000 Assembly. Following
++is a list of commands that must be supported before HALT 1.0.
++
++\noindent Instructions: {\bf \small STOP, MOV, ADD, SUB, MUL, DIV,
++AND, OR, NOT, EOR,
++LEA, BRA, BLE, BGT, BLE, BGE, BNE, CLR, NEG, NOP, BSR}.\\
++Addressing modes: {\bf \small Data Register Direct, Address Register
++Direct, Address Register Indirect, Address Register Indirect with
++Pre-Decrement, Address Register Indirect with Post-Increment,
++Symbolic Address Indirect, Literal}.
++
++All assembly language instructions must behave in the simulator and
++virtual machine as they are defined in the Motorola 68000
++Programmer's Reference\cite{moto}. Language features which are not
++listed here are candidates for inclusion in HALT's subset of
++Motorola 68000 assembly, but are not required. All language choices
++must reflect the HALT design philosophy\cite{phil}.
++
++\subsection*{Added Value Features}
++
++Some higher-level features such as array declaration, and indirect
++indexing may be provided, even though they are not part of the
++original Motorola 68000 instruction set\cite{moto}. These features
++must be implemented in such a way that the machine language produced
++by HALT's assembler is still a strict subset of the Motorola 68000
++machine language. In this way, programs developed with HALT are
++assured to run on any 68k-based hardware.
++\newpage
++\subsection*{Tentative Acknowledgements}
++
++\begin{itemize}
++\item {\bf BerliOS} for hosting the project web site and
++providing project management support.
++\item {\bf NASA} for providing funds for IDCC'05-06.
++\item {\bf USM School of Computing} for hosting IDCC'05-06.
++
++\end{itemize}
++
++\begin{thebibliography}{4}
++
++\bibitem{moto} Motorola Corporation. {\bf Motorola M68000 Programmer's Reference
++Manual}. 1992. \\
++Available at \href{www.freescale.com}{www.freescale.com} or with
++request from Motorola Corporation.
++
++\bibitem{user} Matthew Bennett and Michael Erwin. {\bf HALT User's Guide}. 2006. \\ Available at
++\href{http://halttool.berlios.de}{http://halttool.berlios.de} or
++printed by request.
++
++\bibitem{phil} Michael Erwin. {\bf HALT Design Philosophy}. 2006. \\ Available at
++\href{http://halttool.berlios.de}{http://halttool.berlios.de} or
++printed by request.
++
++\bibitem{berlios} Berlios.de project management site for HALT. \href{http://developer.berlios.de/projects/halttool}{http://developer.berlios.de/projects/halttool}
++
++\bibitem{home} HALT home page. \href{http://halttool.berlios.de}{http://halttool.berlios.de}
++
++\end{thebibliography}
++
++\end{document}
+
+Added: trunk/docs/titlepage.tex
+===================================================================
+--- trunk/docs/titlepage.tex	2006-02-28 23:48:27 UTC (rev 34)
++++ trunk/docs/titlepage.tex	2006-04-27 20:02:49 UTC (rev 35)
+@@ -0,0 +1,25 @@
++%% Please do not make changes to this document unless you are one of the original project members
++
++\documentclass[10pt,fullpage]{article}
++
++\usepackage{amssymb,amsfonts} % Typical maths resource packages
++\usepackage{graphicx}
++\usepackage{hyperref}                 % For creating hyperlinks in cross references
++\usepackage{verbatim}                 % Source code listing
++
++\topmargin -1.5cm \oddsidemargin -0.04cm \evensidemargin -0.04cm
++\textwidth 16.00cm \textheight 23.50cm
++\parskip 7.2pt \parindent 0.25in
++
++\makeindex
++
++\title{\includegraphics[scale=1.0]{logo1.png}\\Humane Assembly Language Tools (HALT)}
++
++\author{\\\small\em \copyright Michael Erwin, Matthew Bennett \today}
++
++ \date{ }
++
++\begin{document}
++\maketitle
++
++\end{document}
+
+
+
+From merwin at berlios.de  Fri Apr 28 02:58:48 2006
+From: merwin at berlios.de (merwin at BerliOS)
+Date: Fri, 28 Apr 2006 02:58:48 +0200
+Subject: [Halttool-dev] r36 - trunk/code
+Message-ID: <200604280058.k3S0wm4O028763@sheep.berlios.de>
+
+Author: merwin
+Date: 2006-04-28 02:58:22 +0200 (Fri, 28 Apr 2006)
+New Revision: 36
+
+Modified:
+   trunk/code/Lexer.cpp
+   trunk/code/Processor.cpp
+   trunk/code/Processor.h
+   trunk/code/Program.cpp
+   trunk/code/Program.h
+   trunk/code/ProgramEditor.cpp
+   trunk/code/Sequence.cpp
+   trunk/code/Sequence.h
+   trunk/code/SymbolTable.cpp
+   trunk/code/SymbolTable.h
+   trunk/code/Timer.cpp
+   trunk/code/main.cpp
+Log:
+Late name binding implemented, needs work to be robust.
+LEA and BRA instructions work (somewhat).
+Fixed a few little bugs.
+
+
+Modified: trunk/code/Lexer.cpp
+===================================================================
+--- trunk/code/Lexer.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Lexer.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -1,10 +1,4 @@
+-// Matt's Stuff I want Feb 19, 2006:
+-//  BRA, BSR, CMP Compare, JMP, JSR, LEA, 
+-//  NOP, ROL, ROR, RTS, TRAP
+ 
+-// datatypes: byte, char (masqueraded byte), long
+- // (can be delayed indefinitely, req changes to the stack)
+-
+ #include "Lexer.h"
+ 
+ using namespace std;
+@@ -29,7 +23,7 @@
+ 	opcodes.insert("nop");
+ 	opcodes.insert("stop");
+ 	
+-//	opcodes.insert("bra");
++	opcodes.insert("bra");
+ //	opcodes.insert("beq");
+ //	opcodes.insert("bne");
+ 	
+
+Modified: trunk/code/Processor.cpp
+===================================================================
+--- trunk/code/Processor.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Processor.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -86,6 +86,8 @@
+ 		{ "eor",  0xb140, 0xf1c0, (Method) &Processor::exec_eor },
+ 		{ "not",  0x4640, 0xffc0, (Method) &Processor::exec_not },
+ 
++		{ "bra",  0x6000, 0xffff, (Method) &Processor::exec_bra },
++
+ 		{ "nop",  0x4e75, 0xffff, (Method) &Processor::exec_nop },
+ 		{ "stop", 0x4e72, 0xffff, (Method) &Processor::exec_stop },
+ 
+@@ -276,6 +278,12 @@
+ void Processor::exec_nop()
+ 	{ /* do nothing! */ }
+ 
++void Processor::exec_bra()
++	{
++	// might not be quite correct, but it's competition time!
++	pc = fetch();
++	}
++
+ void Processor::exec_stop()
+ 	{ m_running = false; }
+ 
+
+Modified: trunk/code/Processor.h
+===================================================================
+--- trunk/code/Processor.h	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Processor.h	2006-04-28 00:58:22 UTC (rev 36)
+@@ -57,6 +57,8 @@
+ 	void exec_or();
+ 	void exec_eor();
+ 	void exec_not();
++
++	void exec_bra();
+ 	
+ 	void exec_nop();
+ 	void exec_stop();
+
+Modified: trunk/code/Program.cpp
+===================================================================
+--- trunk/code/Program.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Program.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -76,6 +76,34 @@
+ 	m_lines.erase( m_lines.begin() + ( n - 1 ));
+ 	}
+ 
++void Program::bind()
++	{
++	try {
++		map< string, unsigned short > symbols;
++		unsigned address = 0;
++
++		// build symbols on first pass
++		for ( vector<Sequence>::iterator i = m_lines.begin(); i != m_lines.end(); ++i )
++			{
++			i->address( address );			// set sequence's address
++
++			string name = i->name();
++			if ( ! name.empty())
++				symbols[ name ] = address;
++
++			address += i->code().size();	// bump counter
++			}
++
++		// resolve symbols on second pass
++		for ( vector<Sequence>::iterator i = m_lines.begin(); i != m_lines.end(); ++i )
++			i->bind( symbols );
++		}
++	catch ( string message )
++		{
++		cerr << "<bind> " << message << endl;
++		}
++	}
++
+ void Program::dump( ostream& out ) const
+ 	{
+ 	out << endl;
+
+Modified: trunk/code/Program.h
+===================================================================
+--- trunk/code/Program.h	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Program.h	2006-04-28 00:58:22 UTC (rev 36)
+@@ -28,6 +28,7 @@
+ 	void insert( unsigned n, Sequence );
+ 	void remove( unsigned n );
+ 	
++	void bind();
+ 	void dump( std::ostream& ) const;
+ 	};
+ 
+
+Modified: trunk/code/ProgramEditor.cpp
+===================================================================
+--- trunk/code/ProgramEditor.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/ProgramEditor.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -34,6 +34,7 @@
+ 	bounds.w = m_program->lineLength() * fontWidth + 2 * margin;
+ 	bounds.h = m_program->lineCount() * ( fontHeight + leading ) - leading + 2 * margin;
+ 	
++	m_program->bind();
+ 	g_mem.clear();
+ 	g_mem << *m_program;
+ 	}
+
+Modified: trunk/code/Sequence.cpp
+===================================================================
+--- trunk/code/Sequence.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Sequence.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -17,14 +17,13 @@
+ 	 
+ 	lex << sourceText;
+ 
+-	if (sourceText != string("") ) //Matt 2-18-06
+-		while ( lex >> t )
+-			{
+-			m_tokens.push_back( t );
++	while ( lex >> t )
++		{
++		m_tokens.push_back( t );
+ 
+-			if ( ! lex.success() )
+-				m_errors.push_back( lex.error() );
+-			}
++		if ( ! lex.success() )
++			m_errors.push_back( lex.error() );
++		}
+ 	
+ 	translate();
+ 	}
+@@ -46,9 +45,37 @@
+ 			out << *i << endl;
+ 	}
+ 
++void Sequence::bind( const map< string, unsigned short >& symbols )	
++	{
++	for ( vector<CrossReference>::const_iterator i = m_crossRefs.begin(); i != m_crossRefs.end(); ++i )
++		{
++		map< string, unsigned short >::const_iterator symbol = symbols.find( i->name );
++		if ( symbol != symbols.end())
++			m_code[ i->offset ] = symbol->second; // we want the numeric address
++		else
++			throw string("'") + i->name + "' is a mystery symbol";
++		}
++	}
++
+ Word::Type Sequence::type() const
+ 	{ return m_type; }
+ 
++unsigned short Sequence::address() const
++	{ return m_address; }
++
++void Sequence::address( unsigned short newAddress )
++	{ m_address = newAddress; }
++
++const string Sequence::name() const
++	{
++	const Token& tok = m_tokens.front();
++
++	if ( tok.is( Token::Label ))
++		return tok.text;
++	else
++		return "";
++	}
++
+ const string& Sequence::source() const
+ 	{ return m_source; }
+ 
+@@ -91,6 +118,8 @@
+ 		table["eor"]  = EncodeEntry( 0xb140, (Method) &Sequence::asm_eor );
+ 		table["not"]  = EncodeEntry( 0x4640, (Method) &Sequence::asm_not );
+ 		
++		table["bra"]  = EncodeEntry( 0x6000, (Method) &Sequence::asm_bra );
++
+ 		table["nop"]  = EncodeEntry( 0x4e75, NULL );
+ 		table["stop"] = EncodeEntry( 0x4e72, NULL );
+ 
+@@ -102,7 +131,7 @@
+ 	if ( m_tokens.empty() || m_tokens.begin()->is( Token::Comment ))
+ 		return;	// blank lines are okay
+ 
+-	m_tokens.push_back( Token::EndLine );				// should end up here after parse
++	m_tokens.push_back( Token::EndLine );	// should end up here after parse
+ 	token = m_tokens.begin();
+ 
+ 	try {
+@@ -271,7 +300,8 @@
+ 	else if ( token->is( Token::Label ))
+ 		{
+ 		ea = EA( EA::Absolute, 0 );
+-		m_code.push_back( 0 );
++		m_crossRefs.push_back((CrossReference){ token->text, m_code.size() });
++		m_code.push_back( 0 ); // placeholder until names are bound
+ 		++token;
+ 		}
+ 	else if ( token->is( Token::Number ))
+@@ -411,3 +441,10 @@
+ 	opWord.insert( dest.reg, 0, 3 );
+ 	opWord.insert( dest.mode, 3, 3 );
+ 	}
++
++void Sequence::asm_bra()
++	{
++	EA target = parseOperand();
++	if ( target.mode != EA::Absolute )
++		throw string("branch target must be a label");
++	}
+
+Modified: trunk/code/Sequence.h
+===================================================================
+--- trunk/code/Sequence.h	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Sequence.h	2006-04-28 00:58:22 UTC (rev 36)
+@@ -4,6 +4,7 @@
+ 
+ #include <string>
+ #include <vector>
++#include <map>
+ #include <iostream>
+ 
+ #include "Object.h"
+@@ -12,6 +13,7 @@
+ #include "EA.h"
+ #include "BitField.h"
+ 
++
+ class Sequence : public Object
+ 	{
+ 	// these are useful for the life of the sequence
+@@ -20,7 +22,16 @@
+ 	std::vector< Token > m_tokens;
+ 	std::vector< short > m_code;
+ 	std::vector< std::string > m_errors;
++	unsigned short m_address;
+ 
++	struct CrossReference
++		{
++		std::string name;
++		unsigned short offset;
++		};
++
++	std::vector< CrossReference > m_crossRefs;
++
+ 	// these are only used during construction
+ 	std::vector< Token >::iterator token;
+ 	BitField opWord;
+@@ -38,6 +49,8 @@
+ 	void asm_eor();
+ 	void asm_not();
+ 
++	void asm_bra();
++
+ public:
+ 	Sequence( std::string sourceText );
+ 
+@@ -46,10 +59,15 @@
+ 
+ 	Word::Type type() const;
+ 
++	unsigned short address() const;
++	void address( unsigned short );
++
++	const std::string name() const;
+ 	const std::string& source() const;
+ 	const std::vector< Token >& tokens() const;
+ 	const std::vector< short >& code() const;
+ 
++	void bind( const std::map< std::string, unsigned short >& symbols );
+ 	void dump( std::ostream& ) const;
+ 	};
+ 
+
+Modified: trunk/code/SymbolTable.cpp
+===================================================================
+--- trunk/code/SymbolTable.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/SymbolTable.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -1,11 +1,26 @@
+-/*
+- *  SymbolTable.cpp
+- *  halt
+- *
+- *  Created by Mike Erwin on 2/23/2006.
+- *  Copyright 2006 __MyCompanyName__. All rights reserved.
+- *
+- */
+ 
+ #include "SymbolTable.h"
++#include "Sequence.h"
+ 
++using namespace std;
++
++SymbolTable g_symbolTable;
++
++//	struct CrossReference
++//		{
++//		Sequence* sequence;
++//		unsigned short offset;
++//		};
++//
++//	map< string, Sequence* > namedSequences;
++//	multimap< string, CrossReference > crossReferences;
++
++void SymbolTable::bind()
++	{
++	for ( map<string,Sequence*>::const_iterator i  = namedSequences.begin();
++												i != namedSequences.end(); ++i )
++		{
++		const string& name = i->first;
++		const unsigned short address = i->second->address();
++		}
++	}
+
+Modified: trunk/code/SymbolTable.h
+===================================================================
+--- trunk/code/SymbolTable.h	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/SymbolTable.h	2006-04-28 00:58:22 UTC (rev 36)
+@@ -1,9 +1,27 @@
+-/*
+- *  SymbolTable.h
+- *  halt
+- *
+- *  Created by Mike Erwin on 2/23/2006.
+- *  Copyright 2006 __MyCompanyName__. All rights reserved.
+- *
+- */
+ 
++#ifndef halt_SymbolTable
++#define halt_SymbolTable
++
++#include <string>
++#include <map>
++
++class Sequence; // forward reference
++
++struct CrossReference
++	{
++	Sequence* sequence;
++	unsigned short offset;
++	};
++
++class SymbolTable
++	{
++	std::map< std::string, Sequence* > namedSequences;
++	std::multimap< std::string, CrossReference > crossReferences;
++
++public:
++	void bind();
++	};
++
++extern SymbolTable g_symbolTable;
++
++#endif
+
+Modified: trunk/code/Timer.cpp
+===================================================================
+--- trunk/code/Timer.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/Timer.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -62,6 +62,7 @@
+ View* Timer::click( point p )
+ 	{
+ 	enabled() ? stop() : start();
++	glutPostRedisplay();
+ 	return this;
+ 	}
+ 
+
+Modified: trunk/code/main.cpp
+===================================================================
+--- trunk/code/main.cpp	2006-04-27 20:02:49 UTC (rev 35)
++++ trunk/code/main.cpp	2006-04-28 00:58:22 UTC (rev 36)
+@@ -155,7 +155,7 @@
+ 	screen->addSubView( new ControlPane, point( 400, 20 ));
+ 
+ 	ProgramEditor* progEdit = new ProgramEditor;
+-	progEdit->program( new Program("test"));
++	progEdit->program( new Program/*("test")*/);
+ 	screen->addSubView( progEdit, point( 400, 90 ));
+ 
+ 	mouseTarget = screen;
+
+
+
+From merwin at berlios.de  Fri Apr 28 03:02:30 2006
+From: merwin at berlios.de (merwin at BerliOS)
+Date: Fri, 28 Apr 2006 03:02:30 +0200
+Subject: [Halttool-dev] r37 - trunk/code
+Message-ID: <200604280102.k3S12UM8029375@sheep.berlios.de>
+
+Author: merwin
+Date: 2006-04-28 03:01:59 +0200 (Fri, 28 Apr 2006)
+New Revision: 37
+
+Removed:
+   trunk/code/SymbolTable.cpp
+   trunk/code/SymbolTable.h
+Log:
+removed unused SymbolTable class.
+
+
+Deleted: trunk/code/SymbolTable.cpp
+===================================================================
+--- trunk/code/SymbolTable.cpp	2006-04-28 00:58:22 UTC (rev 36)
++++ trunk/code/SymbolTable.cpp	2006-04-28 01:01:59 UTC (rev 37)
+@@ -1,26 +0,0 @@
+-
+-#include "SymbolTable.h"
+-#include "Sequence.h"
+-
+-using namespace std;
+-
+-SymbolTable g_symbolTable;
+-
+-//	struct CrossReference
+-//		{
+-//		Sequence* sequence;
+-//		unsigned short offset;
+-//		};
+-//
+-//	map< string, Sequence* > namedSequences;
+-//	multimap< string, CrossReference > crossReferences;
+-
+-void SymbolTable::bind()
+-	{
+-	for ( map<string,Sequence*>::const_iterator i  = namedSequences.begin();
+-												i != namedSequences.end(); ++i )
+-		{
+-		const string& name = i->first;
+-		const unsigned short address = i->second->address();
+-		}
+-	}
+
+Deleted: trunk/code/SymbolTable.h
+===================================================================
+--- trunk/code/SymbolTable.h	2006-04-28 00:58:22 UTC (rev 36)
++++ trunk/code/SymbolTable.h	2006-04-28 01:01:59 UTC (rev 37)
+@@ -1,27 +0,0 @@
+-
+-#ifndef halt_SymbolTable
+-#define halt_SymbolTable
+-
+-#include <string>
+-#include <map>
+-
+-class Sequence; // forward reference
+-
+-struct CrossReference
+-	{
+-	Sequence* sequence;
+-	unsigned short offset;
+-	};
+-
+-class SymbolTable
+-	{
+-	std::map< std::string, Sequence* > namedSequences;
+-	std::multimap< std::string, CrossReference > crossReferences;
+-
+-public:
+-	void bind();
+-	};
+-
+-extern SymbolTable g_symbolTable;
+-
+-#endif
+
+
+
+From merwin at berlios.de  Fri Apr 28 11:17:06 2006
+From: merwin at berlios.de (merwin at BerliOS)
+Date: Fri, 28 Apr 2006 11:17:06 +0200
+Subject: [Halttool-dev] r38 - trunk/code
+Message-ID: <200604280917.k3S9H6XB015712@sheep.berlios.de>
+
+Author: merwin
+Date: 2006-04-28 11:17:06 +0200 (Fri, 28 Apr 2006)
+New Revision: 38
+
+Modified:
+   trunk/code/Lexer.cpp
+   trunk/code/Memory.cpp
+   trunk/code/Memory.h
+   trunk/code/Processor.cpp
+   trunk/code/Processor.h
+   trunk/code/Program.cpp
+   trunk/code/ProgramEditor.cpp
+   trunk/code/Sequence.cpp
+   trunk/code/Sequence.h
+Log:
+Binding crash fixed.
+BEQ and BNE added.
+CMP and logical ops have to wait until morning!
+
+
+Modified: trunk/code/Lexer.cpp
+===================================================================
+--- trunk/code/Lexer.cpp	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Lexer.cpp	2006-04-28 09:17:06 UTC (rev 38)
+@@ -9,7 +9,7 @@
+ 	opcodes.insert("move");
+ 	opcodes.insert("lea");
+ 
+-//	opcodes.insert("cmp");
++	opcodes.insert("cmp");
+ 	opcodes.insert("add");
+ 	opcodes.insert("sub");
+ 	opcodes.insert("mul");
+@@ -24,8 +24,8 @@
+ 	opcodes.insert("stop");
+ 	
+ 	opcodes.insert("bra");
+-//	opcodes.insert("beq");
+-//	opcodes.insert("bne");
++	opcodes.insert("beq");
++	opcodes.insert("bne");
+ 	
+ 	dataTypes.insert("word");
+ 	// No more data types for the pure 16-bit version!
+@@ -130,9 +130,11 @@
+ 		}
+ 	else if ( !token.text.empty() )	// command, opcode, or number base
+ 		{
+-/*		if (( commands.find( token.text )) != commands.end() )
+-			token.type = Token::Command;
+-		else*/ if (( opcodes.find( token.text )) != opcodes.end() )
++//		if (( commands.find( token.text )) != commands.end() )
++//			token.type = Token::Command;
++//		else
++
++		if (( opcodes.find( token.text )) != opcodes.end() )
+ 			token.type = Token::Opcode;
+ 		else if (( dataTypes.find( token.text )) != dataTypes.end() )
+ 			token.type = Token::DataType;
+
+Modified: trunk/code/Memory.cpp
+===================================================================
+--- trunk/code/Memory.cpp	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Memory.cpp	2006-04-28 09:17:06 UTC (rev 38)
+@@ -15,8 +15,9 @@
+ 		contents.push_back( Word( *i, seq.type()));
+ 	}
+ 
+-void Memory::operator << ( const Program& prog )
++void Memory::operator << ( Program& prog )
+ 	{
++	prog.bind();
+ 	prog.dump( cout );
+ 
+ 	for ( vector<Sequence>::const_iterator i = prog.lines().begin(); i != prog.lines().end(); ++i )
+
+Modified: trunk/code/Memory.h
+===================================================================
+--- trunk/code/Memory.h	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Memory.h	2006-04-28 09:17:06 UTC (rev 38)
+@@ -16,7 +16,7 @@
+ 	
+ 	// append machine code
+ 	void operator << ( const Sequence& );
+-	void operator << ( const Program& );
++	void operator << ( Program& );
+ 
+ 	unsigned short size() const;
+ 
+
+Modified: trunk/code/Processor.cpp
+===================================================================
+--- trunk/code/Processor.cpp	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Processor.cpp	2006-04-28 09:17:06 UTC (rev 38)
+@@ -76,17 +76,20 @@
+ 		{ "move", 0x3000, 0xf000, (Method) &Processor::exec_move },
+ 		{ "lea",  0x41c0, 0xf1c0, (Method) &Processor::exec_lea },
+ 
++//		{ "cmp",  0xb040, 0xf0c0, (Method) &Processor::exec_cmp },
+ 		{ "add",  0xd040, 0xf0c0, (Method) &Processor::exec_add },
+ 		{ "sub",  0x9040, 0xf0c0, (Method) &Processor::exec_sub },
+ 		{ "mul",  0xc1c0, 0xf1c0, (Method) &Processor::exec_mul },
+ 		{ "div",  0x81c0, 0xf1c0, (Method) &Processor::exec_div },
+ 
+-		{ "and",  0xc040, 0xf0c0, (Method) &Processor::exec_and },
+-		{ "or",   0x8040, 0xf0c0, (Method) &Processor::exec_or },
+-		{ "eor",  0xb140, 0xf1c0, (Method) &Processor::exec_eor },
+-		{ "not",  0x4640, 0xffc0, (Method) &Processor::exec_not },
++//		{ "and",  0xc040, 0xf0c0, (Method) &Processor::exec_and },
++//		{ "or",   0x8040, 0xf0c0, (Method) &Processor::exec_or },
++//		{ "eor",  0xb140, 0xf1c0, (Method) &Processor::exec_eor },
++//		{ "not",  0x4640, 0xffc0, (Method) &Processor::exec_not },
+ 
+ 		{ "bra",  0x6000, 0xffff, (Method) &Processor::exec_bra },
++		{ "beq",  0x6700, 0xffff, (Method) &Processor::exec_beq },
++		{ "bne",  0x6600, 0xffff, (Method) &Processor::exec_bne },
+ 
+ 		{ "nop",  0x4e75, 0xffff, (Method) &Processor::exec_nop },
+ 		{ "stop", 0x4e72, 0xffff, (Method) &Processor::exec_stop },
+@@ -153,6 +156,24 @@
+ 	dest.write( src.getAddress());
+ 	}
+ 
++//void Processor::exec_cmp()
++//	{
++//	EA dataReg( EA::DataDirect, ir.extract( 9, 3 ));
++//	EA ea( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
++//
++//	bool eaIsDest = (bool) ir.extract( 8 );
++//
++//	Reference src( eaIsDest ? dataReg : ea );
++//	Reference dest( eaIsDest ? ea : dataReg );
++//	
++//	if ( eaIsDest && !dest.inCategory( EA::alterable | EA::memory ))
++//		throw string("destination must be alterable memory");
++//	
++//	short result = dest.read() - src.read();
++//
++//	setFlags( result );
++//	}
++
+ void Processor::exec_add()
+ 	{
+ 	EA dataReg( EA::DataDirect, ir.extract( 9, 3 ));
+@@ -224,66 +245,81 @@
+ 	setFlags( result );
+ 	}
+ 
+-void Processor::exec_and()
+-	{
+-	throw string("under construction");
+-
+-//	Reference src( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
+-//	Reference dest( ir.extract( 6, 3 ), ir.extract( 9, 3 ));
++//void Processor::exec_and()
++//	{
++//	throw string("under construction");
+ //
+-//	short result = src.read() & dest.read();
++////	Reference src( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
++////	Reference dest( ir.extract( 6, 3 ), ir.extract( 9, 3 ));
++////
++////	short result = src.read() & dest.read();
++////
++////	dest.write( result );
++////	setFlags( result );
++//	}
+ //
+-//	dest.write( result );
+-//	setFlags( result );
+-	}
+-
+-void Processor::exec_or()
+-	{
+-	throw string("under construction");
+-
+-//	Reference src( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
+-//	Reference dest( ir.extract( 6, 3 ), ir.extract( 9, 3 ));
++//void Processor::exec_or()
++//	{
++//	throw string("under construction");
+ //
+-//	short result = src.read() | dest.read();
++////	Reference src( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
++////	Reference dest( ir.extract( 6, 3 ), ir.extract( 9, 3 ));
++////
++////	short result = src.read() | dest.read();
++////
++////	dest.write( result );
++////	setFlags( result );
++//	}
+ //
+-//	dest.write( result );
+-//	setFlags( result );
+-	}
+-
+-void Processor::exec_eor()
+-	{
+-	throw string("under construction");
+-
+-//	Reference src( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
+-//	Reference dest( ir.extract( 6, 3 ), ir.extract( 9, 3 ));
++//void Processor::exec_eor()
++//	{
++//	throw string("under construction");
+ //
+-//	short result = src.read() ^ dest.read();
++////	Reference src( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
++////	Reference dest( ir.extract( 6, 3 ), ir.extract( 9, 3 ));
++////
++////	short result = src.read() ^ dest.read();
++////
++////	dest.write( result );
++////	setFlags( result );
++//	}
+ //
+-//	dest.write( result );
+-//	setFlags( result );
+-	}
+-
+-void Processor::exec_not()
+-	{
+-	throw string("under construction");
+-
+-//	Reference dest( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
++//void Processor::exec_not()
++//	{
++//	throw string("under construction");
+ //
+-//	short result = ~ dest.read();
+-//
+-//	dest.write( result );
+-//	setFlags( result );
+-	}
++////	Reference dest( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
++////
++////	short result = ~ dest.read();
++////
++////	dest.write( result );
++////	setFlags( result );
++//	}
+ 
+ void Processor::exec_nop()
+ 	{ /* do nothing! */ }
+ 
+ void Processor::exec_bra()
+ 	{
+-	// might not be quite correct, but it's competition time!
+-	pc = fetch();
++	pc = fetch();	// not quite authentic, but it's competition time!
+ 	}
+ 
++void Processor::exec_beq()
++	{
++	unsigned short target = fetch();
++	if ( zero())
++		pc = target; // not quite authentic, but it's competition time!
++	}
++
++void Processor::exec_bne()
++	{
++	unsigned short target = fetch();
++	if ( ! zero())
++		pc = target; // not quite authentic, but it's competition time!
++	else
++		cout << "moving on..." << endl;
++	}
++
+ void Processor::exec_stop()
+ 	{ m_running = false; }
+ 
+
+Modified: trunk/code/Processor.h
+===================================================================
+--- trunk/code/Processor.h	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Processor.h	2006-04-28 09:17:06 UTC (rev 38)
+@@ -48,17 +48,20 @@
+ 	void exec_move();
+ 	void exec_lea();
+ 
++//	void exec_cmp();
+ 	void exec_add();
+ 	void exec_sub();
+ 	void exec_mul();
+ 	void exec_div();
+ 
+-	void exec_and();
+-	void exec_or();
+-	void exec_eor();
+-	void exec_not();
++//	void exec_and();
++//	void exec_or();
++//	void exec_eor();
++//	void exec_not();
+ 
+ 	void exec_bra();
++	void exec_beq();
++	void exec_bne();
+ 	
+ 	void exec_nop();
+ 	void exec_stop();
+
+Modified: trunk/code/Program.cpp
+===================================================================
+--- trunk/code/Program.cpp	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Program.cpp	2006-04-28 09:17:06 UTC (rev 38)
+@@ -78,25 +78,32 @@
+ 
+ void Program::bind()
+ 	{
++	map< string, unsigned short > symbols;
+ 	try {
+-		map< string, unsigned short > symbols;
++		vector<Sequence>::iterator seq;
+ 		unsigned address = 0;
+ 
+ 		// build symbols on first pass
+-		for ( vector<Sequence>::iterator i = m_lines.begin(); i != m_lines.end(); ++i )
++		for ( seq = m_lines.begin(); seq != m_lines.end(); ++seq )
+ 			{
+-			i->address( address );			// set sequence's address
+-
+-			string name = i->name();
++			string name = seq->name();
+ 			if ( ! name.empty())
+-				symbols[ name ] = address;
++				{
++				if ( symbols.find( name ) == symbols.end() )
++					{
++					cout << "adding {" << name << "," << address << "}" << endl;
++					symbols[ name ] = address;
++					}
++				else
++					throw string("'") + name + "' is already defined";
++				}
+ 
+-			address += i->code().size();	// bump counter
++			address += seq->code().size();	// bump offset
+ 			}
+ 
+ 		// resolve symbols on second pass
+-		for ( vector<Sequence>::iterator i = m_lines.begin(); i != m_lines.end(); ++i )
+-			i->bind( symbols );
++		for ( seq = m_lines.begin(); seq != m_lines.end(); ++seq )
++			seq->bind( symbols );
+ 		}
+ 	catch ( string message )
+ 		{
+
+Modified: trunk/code/ProgramEditor.cpp
+===================================================================
+--- trunk/code/ProgramEditor.cpp	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/ProgramEditor.cpp	2006-04-28 09:17:06 UTC (rev 38)
+@@ -34,7 +34,8 @@
+ 	bounds.w = m_program->lineLength() * fontWidth + 2 * margin;
+ 	bounds.h = m_program->lineCount() * ( fontHeight + leading ) - leading + 2 * margin;
+ 	
+-	m_program->bind();
++	// weird place for this...
++//	m_program->bind();
+ 	g_mem.clear();
+ 	g_mem << *m_program;
+ 	}
+
+Modified: trunk/code/Sequence.cpp
+===================================================================
+--- trunk/code/Sequence.cpp	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Sequence.cpp	2006-04-28 09:17:06 UTC (rev 38)
+@@ -53,21 +53,18 @@
+ 		if ( symbol != symbols.end())
+ 			m_code[ i->offset ] = symbol->second; // we want the numeric address
+ 		else
+-			throw string("'") + i->name + "' is a mystery symbol";
++			throw string("'") + i->name + "' is not defined";
+ 		}
+ 	}
+ 
+ Word::Type Sequence::type() const
+ 	{ return m_type; }
+ 
+-unsigned short Sequence::address() const
+-	{ return m_address; }
+-
+-void Sequence::address( unsigned short newAddress )
+-	{ m_address = newAddress; }
+-
+ const string Sequence::name() const
+ 	{
++	if ( m_tokens.empty())
++		return "";
++
+ 	const Token& tok = m_tokens.front();
+ 
+ 	if ( tok.is( Token::Label ))
+@@ -108,6 +105,7 @@
+ 		table["move"] = EncodeEntry( 0x3000, (Method) &Sequence::asm_move );
+ 		table["lea"]  = EncodeEntry( 0x41c0, (Method) &Sequence::asm_lea );
+ 
++		table["cmp"]  = EncodeEntry( 0xb040, (Method) &Sequence::asm_add_sub );
+ 		table["add"]  = EncodeEntry( 0xd040, (Method) &Sequence::asm_add_sub );
+ 		table["sub"]  = EncodeEntry( 0x9040, (Method) &Sequence::asm_add_sub );
+ 		table["mul"]  = EncodeEntry( 0xc1c0, (Method) &Sequence::asm_mul_div );
+@@ -118,7 +116,9 @@
+ 		table["eor"]  = EncodeEntry( 0xb140, (Method) &Sequence::asm_eor );
+ 		table["not"]  = EncodeEntry( 0x4640, (Method) &Sequence::asm_not );
+ 		
+-		table["bra"]  = EncodeEntry( 0x6000, (Method) &Sequence::asm_bra );
++		table["bra"]  = EncodeEntry( 0x6000, (Method) &Sequence::asm_branch );
++		table["beq"]  = EncodeEntry( 0x6700, (Method) &Sequence::asm_branch );
++		table["bne"]  = EncodeEntry( 0x6600, (Method) &Sequence::asm_branch );
+ 
+ 		table["nop"]  = EncodeEntry( 0x4e75, NULL );
+ 		table["stop"] = EncodeEntry( 0x4e72, NULL );
+@@ -128,6 +128,8 @@
+ 
+ 	// ------------------------------------------------------
+ 
++	m_crossRefs.clear();
++
+ 	if ( m_tokens.empty() || m_tokens.begin()->is( Token::Comment ))
+ 		return;	// blank lines are okay
+ 
+@@ -300,7 +302,7 @@
+ 	else if ( token->is( Token::Label ))
+ 		{
+ 		ea = EA( EA::Absolute, 0 );
+-		m_crossRefs.push_back((CrossReference){ token->text, m_code.size() });
++		m_crossRefs.push_back( CrossReference( token->text, m_code.size()));
+ 		m_code.push_back( 0 ); // placeholder until names are bound
+ 		++token;
+ 		}
+@@ -442,7 +444,7 @@
+ 	opWord.insert( dest.mode, 3, 3 );
+ 	}
+ 
+-void Sequence::asm_bra()
++void Sequence::asm_branch()
+ 	{
+ 	EA target = parseOperand();
+ 	if ( target.mode != EA::Absolute )
+
+Modified: trunk/code/Sequence.h
+===================================================================
+--- trunk/code/Sequence.h	2006-04-28 01:01:59 UTC (rev 37)
++++ trunk/code/Sequence.h	2006-04-28 09:17:06 UTC (rev 38)
+@@ -22,12 +22,15 @@
+ 	std::vector< Token > m_tokens;
+ 	std::vector< short > m_code;
+ 	std::vector< std::string > m_errors;
+-	unsigned short m_address;
+ 
+ 	struct CrossReference
+ 		{
+ 		std::string name;
+ 		unsigned short offset;
++		
++		CrossReference( std::string n, unsigned short o )
++			: name(n), offset(o)
++			{ }
+ 		};
+ 
+ 	std::vector< CrossReference > m_crossRefs;
+@@ -49,7 +52,7 @@
+ 	void asm_eor();
+ 	void asm_not();
+ 
+-	void asm_bra();
++	void asm_branch();
+ 
+ public:
+ 	Sequence( std::string sourceText );
+@@ -59,9 +62,6 @@
+ 
+ 	Word::Type type() const;
+ 
+-	unsigned short address() const;
+-	void address( unsigned short );
+-
+ 	const std::string name() const;
+ 	const std::string& source() const;
+ 	const std::vector< Token >& tokens() const;
+
+
+
+From twinbee at berlios.de  Fri Apr 28 15:25:15 2006
+From: twinbee at berlios.de (twinbee at berlios.de)
+Date: Fri, 28 Apr 2006 15:25:15 +0200
+Subject: [Halttool-dev] r39 - in trunk: code docs
+Message-ID: <200604281325.k3SDPFkt028043@sheep.berlios.de>
+
+Author: twinbee
+Date: 2006-04-28 15:24:51 +0200 (Fri, 28 Apr 2006)
+New Revision: 39
+
+Added:
+   trunk/docs/titlepage.pdf
+Removed:
+   trunk/docs/specifications.dvi
+Modified:
+   trunk/code/Sequence.cpp
+   trunk/code/main.cpp
+   trunk/docs/specifications.pdf
+Log:
+Fixed a memory leak in the Windows version in the Sequence / Lexxer interaction.
+Added documentation docs/titlepage.pdf
+Cleaned up uneccessary files.
+
+Modified: trunk/code/Sequence.cpp
+===================================================================
+--- trunk/code/Sequence.cpp	2006-04-28 09:17:06 UTC (rev 38)
++++ trunk/code/Sequence.cpp	2006-04-28 13:24:51 UTC (rev 39)
+@@ -17,6 +17,14 @@
+ 	 
+ 	lex << sourceText;
+ 
++	//windows specific kludge. please leave in place
++	//otherwise windows will eat your babies
++	if (sourceText.empty())
++	{
++	 //Token t_t (Token::EndLine); //edit this line
++	 //m_tokens.push_back( t_t );
++	}
++	else
+ 	while ( lex >> t )
+ 		{
+ 		m_tokens.push_back( t );
+
+Modified: trunk/code/main.cpp
+===================================================================
+--- trunk/code/main.cpp	2006-04-28 09:17:06 UTC (rev 38)
++++ trunk/code/main.cpp	2006-04-28 13:24:51 UTC (rev 39)
+@@ -135,7 +135,7 @@
+ 	glutMouseFunc( mouse );
+ 	glutMotionFunc( motion );
+ 
+-//	glutIdleFunc( display ); // for snowflakes
++	glutIdleFunc( display ); // for snowflakes
+ 
+ 	initGL();
+ 
+
+Deleted: trunk/docs/specifications.dvi
+===================================================================
+(Binary files differ)
+
+Modified: trunk/docs/specifications.pdf
+===================================================================
+(Binary files differ)
+
+Added: trunk/docs/titlepage.pdf
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/docs/titlepage.pdf
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+
+
+From twinbee at berlios.de  Fri Apr 28 15:39:33 2006
+From: twinbee at berlios.de (twinbee at berlios.de)
+Date: Fri, 28 Apr 2006 15:39:33 +0200
+Subject: [Halttool-dev] r40 - trunk/code
+Message-ID: <200604281339.k3SDdXEd027704@sheep.berlios.de>
+
+Author: twinbee
+Date: 2006-04-28 15:39:29 +0200 (Fri, 28 Apr 2006)
+New Revision: 40
+
+Modified:
+   trunk/code/Workspace.cpp
+Log:
+Snow code in Workspace with windows inclusion guards.
+
+Modified: trunk/code/Workspace.cpp
+===================================================================
+--- trunk/code/Workspace.cpp	2006-04-28 13:24:51 UTC (rev 39)
++++ trunk/code/Workspace.cpp	2006-04-28 13:39:29 UTC (rev 40)
+@@ -1,11 +1,19 @@
+-
+ #include "Workspace.h"
+ #include "graphics.h"
+ 
++#include <vector>
++
+ Workspace::Workspace( size s )
+ 	: View( s )
+ 	{ }
+ 
++ struct snowflake
++ { float px, py, rz, dx, dy;
++   snowflake(float x, float y, float r, float vx, float vy) :
++             px(x), py(y), rz(r), dx(vx), dy(vy) {}
++ };
++ std::vector< snowflake > snowflakes;
++
+ void Workspace::draw()
+ 	{
+ 	beginLocal();
+@@ -24,46 +32,48 @@
+ 		glVertex2i( 0, bounds.h );
+ 	glEnd();
+ 
+-//	//<matt>: "pretty prettier snowflakes" 2-18-06
+-//	const float SFSIZE = 6.0;
+-//	  glColor4f( 1.0, 1.0, 1.0, 0.15 );
+-//	if (snowflakes.size() == 0) //how many snowflakes?
+-//	// 0 is not snowing, 20 enough, 50 too much, 200 blizzard
+-//	{ for (int i = 0; i <= 50; i++)
+-//	  snowflakes.push_back
+-//	  (snowflake(rand()%bounds.w, rand()%bounds.h, rand()%360, ((rand()%2)-1.0)/5.0, ((rand()%2)-1.0)/5.0));
+-//	}
+-//	for (int i = 0; i < snowflakes.size(); i++)
+-//	{
+-//	 snowflakes[i].rz += SFSIZE;
+-//	 if (snowflakes[i].rz >= 360.0) snowflakes[i].rz = 0.0;
+-//
+-//	 snowflakes[i].px += 0.5 + snowflakes[i].dx;
+-//	 if (snowflakes[i].px >= bounds.w) snowflakes[i].px = 0.0;
+-//
+-//	 snowflakes[i].py += 0.5 + snowflakes[i].dy;
+-//	 if (snowflakes[i].py >= bounds.h) snowflakes[i].py = 0.0;
+-//	 
+-//	 glPushMatrix();
+-//	 glTranslatef(snowflakes[i].px, snowflakes[i].py, 0.0);
+-//	 //which is pretier? I think the 2nd one is
+-//	 //glRotatef(snowflakes[i].rz, 0.0, 0.0, 1.0);
+-//	 glRotatef(snowflakes[i].rz, 1.0, 0.0, 1.0);
+-//	 glBegin( GL_TRIANGLES );
+-//	  glVertex2f( - SFSIZE, + SFSIZE);
+-//	  glVertex2f( 0.0,  - SFSIZE);
+-//	  glVertex2f( + SFSIZE, + SFSIZE);
+-//	 glEnd();
+-//	 glTranslatef(0.0, SFSIZE/2.0, 0.0);
+-//	 glBegin( GL_TRIANGLES );
+-//	  glVertex2f( + SFSIZE, - SFSIZE);
+-//	  glVertex2f( 0.0,  + SFSIZE);
+-//	  glVertex2f( - SFSIZE, - SFSIZE);
+-//	 glEnd();
+-//	 glPopMatrix();
+-//	}
+-//	//</matt> snowflakes
++#if defined(_WIN32)
++	//<matt>: "pretty prettier snowflakes" 2-18-06
++	const float SFSIZE = 4.0;
++	  glColor4f( 1.0, 1.0, 1.0, 0.15 );
++	if (snowflakes.size() == 0) //how many snowflakes?
++	// 0 is not snowing, 20 enough, 50 too much, 200 blizzard
++	{ for (int i = 0; i <= 50; i++)
++	  snowflakes.push_back
++	  (snowflake(rand()%bounds.w, rand()%bounds.h, rand()%360, ((rand()%2)-1.0)/5.0, ((rand()%2)-1.0)/5.0));
++	}
++	for (int i = 0; i < snowflakes.size(); i++)
++	{
++	 snowflakes[i].rz += SFSIZE;
++	 if (snowflakes[i].rz >= 360.0) snowflakes[i].rz = 0.0;
+ 
++	 snowflakes[i].px += 0.5 + snowflakes[i].dx;
++	 if (snowflakes[i].px >= bounds.w) snowflakes[i].px = 0.0;
++
++	 snowflakes[i].py += 0.5 + snowflakes[i].dy;
++	 if (snowflakes[i].py >= bounds.h) snowflakes[i].py = 0.0;
++	 
++	 glPushMatrix();
++	 glTranslatef(snowflakes[i].px, snowflakes[i].py, 0.0);
++	 //which is pretier? I think the 2nd one is
++	 //glRotatef(snowflakes[i].rz, 0.0, 0.0, 1.0);
++	 glRotatef(snowflakes[i].rz, 1.0, 0.0, 1.0);
++	 glBegin( GL_TRIANGLES );
++	  glVertex2f( - SFSIZE, + SFSIZE);
++	  glVertex2f( 0.0,  - SFSIZE);
++	  glVertex2f( + SFSIZE, + SFSIZE);
++	 glEnd();
++	 glTranslatef(0.0, SFSIZE/2.0, 0.0);
++	 glBegin( GL_TRIANGLES );
++	  glVertex2f( + SFSIZE, - SFSIZE);
++	  glVertex2f( 0.0,  + SFSIZE);
++	  glVertex2f( - SFSIZE, - SFSIZE);
++	 glEnd();
++	 glPopMatrix();
++	}
++	//</matt> snowflakes
++#endif
++
+ 	endLocal();
+ 	drawSubViews();
+ 	}
+
+
+
+From merwin at berlios.de  Fri Apr 28 15:47:42 2006
+From: merwin at berlios.de (merwin at BerliOS)
+Date: Fri, 28 Apr 2006 15:47:42 +0200
+Subject: [Halttool-dev] r41 - trunk/code
+Message-ID: <200604281347.k3SDlgA0028626@sheep.berlios.de>
+
+Author: merwin
+Date: 2006-04-28 15:47:39 +0200 (Fri, 28 Apr 2006)
+New Revision: 41
+
+Modified:
+   trunk/code/Sequence.cpp
+Log:
+
+ok.
+
+
+Modified: trunk/code/Sequence.cpp
+===================================================================
+--- trunk/code/Sequence.cpp	2006-04-28 13:39:29 UTC (rev 40)
++++ trunk/code/Sequence.cpp	2006-04-28 13:47:39 UTC (rev 41)
+@@ -19,19 +19,20 @@
+ 
+ 	//windows specific kludge. please leave in place
+ 	//otherwise windows will eat your babies
++	// <mike>Windows is wrong</mike>
+ 	if (sourceText.empty())
+-	{
+-	 //Token t_t (Token::EndLine); //edit this line
+-	 //m_tokens.push_back( t_t );
+-	}
++		{
++		 //Token t_t (Token::EndLine); //edit this line
++		 //m_tokens.push_back( t_t );
++		}
+ 	else
+-	while ( lex >> t )
+-		{
+-		m_tokens.push_back( t );
++		while ( lex >> t )
++			{
++			m_tokens.push_back( t );
+ 
+-		if ( ! lex.success() )
+-			m_errors.push_back( lex.error() );
+-		}
++			if ( ! lex.success() )
++				m_errors.push_back( lex.error() );
++			}
+ 	
+ 	translate();
+ 	}
+
+
+
+From merwin at berlios.de  Fri Apr 28 17:26:14 2006
+From: merwin at berlios.de (merwin at BerliOS)
+Date: Fri, 28 Apr 2006 17:26:14 +0200
+Subject: [Halttool-dev] r42 - trunk/code
+Message-ID: <200604281526.k3SFQEl8006607@sheep.berlios.de>
+
+Author: merwin
+Date: 2006-04-28 17:26:13 +0200 (Fri, 28 Apr 2006)
+New Revision: 42
+
+Modified:
+   trunk/code/Processor.cpp
+   trunk/code/Processor.h
+   trunk/code/Reference.cpp
+   trunk/code/Sequence.cpp
+   trunk/code/SystemView.cpp
+Log:
+Address Register orange rings!
+CMP added back in (as a demo hack).
+
+
+Modified: trunk/code/Processor.cpp
+===================================================================
+--- trunk/code/Processor.cpp	2006-04-28 13:47:39 UTC (rev 41)
++++ trunk/code/Processor.cpp	2006-04-28 15:26:13 UTC (rev 42)
+@@ -10,14 +10,17 @@
+ Processor::Processor()
+ 	{
+ 	regs << Sequence("word[8]");
++	addrs << Sequence("word[8]");
++
+ 	reset();
+ 	}
+ 
+ const Word& Processor::reg( unsigned short address ) const
+-	{
+-	return regs.word( address );
+-	}
++	{ return regs.word( address ); }
+ 
++const Word& Processor::addr( unsigned short address ) const
++	{ return addrs.word( address ); }
++
+ void Processor::reset()
+ 	{
+ 	pc = 0;
+@@ -26,7 +29,7 @@
+ 	for ( int i = 0; i <= 7; ++i )
+ 		{
+ 		regs.write( i, Word::Data, 0 );
+-		a[i] = 0;
++		addrs.write( i, Word::Address, -1 ); // incorrect, but forces unused regs offscreen
+ 		}
+ 
+ 	setFlags( 0 );
+@@ -76,7 +79,7 @@
+ 		{ "move", 0x3000, 0xf000, (Method) &Processor::exec_move },
+ 		{ "lea",  0x41c0, 0xf1c0, (Method) &Processor::exec_lea },
+ 
+-//		{ "cmp",  0xb040, 0xf0c0, (Method) &Processor::exec_cmp },
++		{ "cmp",  0xb040, 0xf0c0, (Method) &Processor::exec_cmp },
+ 		{ "add",  0xd040, 0xf0c0, (Method) &Processor::exec_add },
+ 		{ "sub",  0x9040, 0xf0c0, (Method) &Processor::exec_sub },
+ 		{ "mul",  0xc1c0, 0xf1c0, (Method) &Processor::exec_mul },
+@@ -156,24 +159,27 @@
+ 	dest.write( src.getAddress());
+ 	}
+ 
+-//void Processor::exec_cmp()
+-//	{
+-//	EA dataReg( EA::DataDirect, ir.extract( 9, 3 ));
+-//	EA ea( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
+-//
+-//	bool eaIsDest = (bool) ir.extract( 8 );
+-//
+-//	Reference src( eaIsDest ? dataReg : ea );
+-//	Reference dest( eaIsDest ? ea : dataReg );
+-//	
++void Processor::exec_cmp()
++	{
++	// this instruction is not "by the book"
++	// it's a placeholder for the demonstration.
++
++	EA dataReg( EA::DataDirect, ir.extract( 9, 3 ));
++	EA ea( ir.extract( 3, 3 ), ir.extract( 0, 3 ));
++
++	bool eaIsDest = (bool) ir.extract( 8 );
++
++	Reference src( eaIsDest ? dataReg : ea );
++	Reference dest( eaIsDest ? ea : dataReg );
++	
+ //	if ( eaIsDest && !dest.inCategory( EA::alterable | EA::memory ))
+ //		throw string("destination must be alterable memory");
+-//	
+-//	short result = dest.read() - src.read();
+-//
+-//	setFlags( result );
+-//	}
++	
++	short result = dest.read() - src.read();
+ 
++	setFlags( result );
++	}
++
+ void Processor::exec_add()
+ 	{
+ 	EA dataReg( EA::DataDirect, ir.extract( 9, 3 ));
+
+Modified: trunk/code/Processor.h
+===================================================================
+--- trunk/code/Processor.h	2006-04-28 13:47:39 UTC (rev 41)
++++ trunk/code/Processor.h	2006-04-28 15:26:13 UTC (rev 42)
+@@ -13,14 +13,15 @@
+ class Processor : public Object
+ 	{
+ 	Memory regs;			// data registers
+-	unsigned short a[8];	// address registers
++	Memory addrs;			// address registers
+ 
++//	unsigned short a[8];	// (old) address registers
++
+ 	std::string mnemonic;	// current instruction
+ 	BitField ir;			// instruction register
+ 	BitField sr;			// status register
+ 	unsigned short pc;		// program counter
+ 	
+-
+ 	bool m_error;
+ 	bool m_running;
+ 
+@@ -29,6 +30,7 @@
+ 
+ 	// data registers
+ 	const Word& reg( unsigned short address ) const;
++	const Word& addr( unsigned short address ) const;
+ 
+ 	// status flags
+ 	bool negative() const;
+@@ -48,7 +50,7 @@
+ 	void exec_move();
+ 	void exec_lea();
+ 
+-//	void exec_cmp();
++	void exec_cmp();
+ 	void exec_add();
+ 	void exec_sub();
+ 	void exec_mul();
+
+Modified: trunk/code/Reference.cpp
+===================================================================
+--- trunk/code/Reference.cpp	2006-04-28 13:47:39 UTC (rev 41)
++++ trunk/code/Reference.cpp	2006-04-28 15:26:13 UTC (rev 42)
+@@ -13,7 +13,8 @@
+ 		{
+ 		case AddressIndirect:
+ 			hasAddress = true;
+-			address = g_cpu.a[ reg ];
++//			address = g_cpu.a[ reg ];
++			address = g_cpu.addrs.read( reg, Word::Address );
+ 			break;
+ 		case Absolute:
+ 			hasAddress = true;
+@@ -60,20 +61,32 @@
+ 				break;
+ 			case AddressDirect:
+ 				hasValue = true;
+-				value = g_cpu.a[ reg ];
++//				value = g_cpu.a[ reg ];
++				value = g_cpu.addrs.read( reg, Word::Address );
+ 				break;
+ 			case AddressIndirect:
+ 				hasValue = true;
+-				value = g_mem.read( g_cpu.a[ reg ], Word::Data );
++//				value = g_mem.read( g_cpu.a[ reg ], Word::Data );
++				value = g_mem.read( g_cpu.addrs.read( reg, Word::Address ), Word::Data );
+ 				break;
+ 			case PostIncrement:
+-				value = g_mem.read( g_cpu.a[ reg ], Word::Data );
+-				++( g_cpu.a[ reg ]);
++//				value = g_mem.read( g_cpu.a[ reg ], Word::Data );
++//				++( g_cpu.a[ reg ]);
++				{
++				unsigned short address = g_cpu.addrs.read( reg, Word::Address );
++				value = g_mem.read( address, Word::Data );
++				g_cpu.addrs.write( reg, Word::Address, address + 1 );
+ 				break;
++				}
+ 			case PreDecrement:
+-				--( g_cpu.a[ reg ]);
+-				value = g_mem.read( g_cpu.a[ reg ], Word::Data );
++//				--( g_cpu.a[ reg ]);
++//				value = g_mem.read( g_cpu.a[ reg ], Word::Data );
++				{
++				unsigned short address = g_cpu.addrs.read( reg, Word::Address );
++				value = g_mem.read( address - 1, Word::Data );
++				g_cpu.addrs.write( reg, Word::Address, address - 1 );
+ 				break;
++				}
+ 			case Absolute:
+ 				hasValue = true;
+ 				value = g_mem.read( address, Word::Data  );
+@@ -94,19 +107,31 @@
+ 				g_cpu.regs.write( reg, Word::Data, newValue );
+ 				break;
+ 			case AddressDirect:
+-				g_cpu.a[ reg ] = newValue;
++//				g_cpu.a[ reg ] = newValue;
++				g_cpu.addrs.write( reg, Word::Address, newValue );
+ 				break;
+ 			case AddressIndirect:
+-				g_mem.write( g_cpu.a[ reg ], Word::Data, newValue );
++//				g_mem.write( g_cpu.a[ reg ], Word::Data, newValue );
++				g_mem.write( g_cpu.addrs.read( reg, Word::Address ), Word::Data, newValue );
+ 				break;
+ 			case PostIncrement:
+-				g_mem.write( g_cpu.a[ reg ], Word::Data, newValue );
+-				++( g_cpu.a[ reg ]);
++//				g_mem.write( g_cpu.a[ reg ], Word::Data, newValue );
++//				++( g_cpu.a[ reg ]);
++				{
++				unsigned short address = g_cpu.addrs.read( reg, Word::Address );
++				g_mem.write( address, Word::Data, newValue );
++				g_cpu.addrs.write( reg, Word::Address, address + 1 );
+ 				break;
++				}
+ 			case PreDecrement:
+-				--( g_cpu.a[ reg ]);
+-				g_mem.write( g_cpu.a[ reg ], Word::Data, newValue );
++//				--( g_cpu.a[ reg ]);
++//				g_mem.write( g_cpu.a[ reg ], Word::Data, newValue );
++				{
++				unsigned short address = g_cpu.addrs.read( reg, Word::Address );
++				g_mem.write( address - 1, Word::Data, newValue );
++				g_cpu.addrs.write( reg, Word::Address, address - 1 );
+ 				break;
++				}
+ 			case Absolute:
+ 				g_mem.write( address, Word::Data, newValue );
+ 				break;
+
+Modified: trunk/code/Sequence.cpp
+===================================================================
+--- trunk/code/Sequence.cpp	2006-04-28 13:47:39 UTC (rev 41)
++++ trunk/code/Sequence.cpp	2006-04-28 15:26:13 UTC (rev 42)
+@@ -17,9 +17,9 @@
+ 	 
+ 	lex << sourceText;
+ 
+-	//windows specific kludge. please leave in place
+-	//otherwise windows will eat your babies
+-	// <mike>Windows is wrong</mike>
++	// <matt> windows specific kludge. please leave in place
++	//        otherwise windows will eat your babies </matt>
++	// <mike> Windows is wrong! </mike>
+ 	if (sourceText.empty())
+ 		{
+ 		 //Token t_t (Token::EndLine); //edit this line
+
+Modified: trunk/code/SystemView.cpp
+===================================================================
+--- trunk/code/SystemView.cpp	2006-04-28 13:47:39 UTC (rev 41)
++++ trunk/code/SystemView.cpp	2006-04-28 15:26:13 UTC (rev 42)
+@@ -137,6 +137,31 @@
+ 			angle += m_angleStep;
+ 			}
+ 
++		glLineWidth( 2.0 );
++
++		// draw address registers
++		for ( unsigned reg = 0; reg <= 7; ++reg )
++			{
++			unsigned short addr = g_cpu.addr( reg ).peek();
++			if ( addr < memSize )
++				{
++				float intensity;
++				switch ( g_cpu.addr( reg ).age())
++					{
++					case 0: intensity = 1.0; break;
++					case 1: intensity = 0.8; break;
++					case 2: intensity = 0.6; break;
++					case 3: intensity = 0.4; break;
++					default: intensity = 0.2;
++					}
++				Color::palette["address"].scaleValue( intensity ).set();
++
++				gotoPoint( m_angleStep * ( addr + 1 ), m_pathRadius );
++					drawCircle( 1.1 * m_circleRadius, stroke );
++				glPopMatrix();
++				}
++			}
++
+ 		Color().set(); // default color
+ 		glPointSize( 3 );
+ 
+@@ -146,7 +171,6 @@
+ 		drawPoint(( memSize + 3.0 ) / m_spaces, m_pathRadius );
+ 
+ 		// begin / end boundary
+-		glLineWidth( 2 );
+ 		drawLine( 0, m_pathRadius - 0.1, m_pathRadius + 0.1 );
+ 		glLineWidth( 1 ); // back to the default -- could push/pop
+ 		}
+@@ -165,7 +189,7 @@
+ 
+ 		float angle = 1.5 * angleStep;
+ 
+-		// draw registers
++		// draw data registers
+ 		for ( unsigned reg = 0; reg <= 7; ++reg )
+ 			{
+ 			float intensity;
+
+
+
+From merwin at berlios.de  Fri Apr 28 17:37:45 2006
+From: merwin at berlios.de (merwin at BerliOS)
+Date: Fri, 28 Apr 2006 17:37:45 +0200
+Subject: [Halttool-dev] r43 - trunk/code
+Message-ID: <200604281537.k3SFbjcl007682@sheep.berlios.de>
+
+Author: merwin
+Date: 2006-04-28 17:37:42 +0200 (Fri, 28 Apr 2006)
+New Revision: 43
+
+Modified:
+   trunk/code/Workspace.cpp
+   trunk/code/main.cpp
+Log:
+Snowflake code only on Windows.
+Reduced CPU load for other platforms.
+
+
+Modified: trunk/code/Workspace.cpp
+===================================================================
+--- trunk/code/Workspace.cpp	2006-04-28 15:26:13 UTC (rev 42)
++++ trunk/code/Workspace.cpp	2006-04-28 15:37:42 UTC (rev 43)
+@@ -1,18 +1,22 @@
+ #include "Workspace.h"
+ #include "graphics.h"
+ 
++#if defined(_WIN32)
+ #include <vector>
++#endif
+ 
+ Workspace::Workspace( size s )
+ 	: View( s )
+ 	{ }
+ 
+- struct snowflake
+- { float px, py, rz, dx, dy;
+-   snowflake(float x, float y, float r, float vx, float vy) :
+-             px(x), py(y), rz(r), dx(vx), dy(vy) {}
+- };
++#if defined(_WIN32)
++ struct snowflake
++ { float px, py, rz, dx, dy;
++   snowflake(float x, float y, float r, float vx, float vy) :
++             px(x), py(y), rz(r), dx(vx), dy(vy) {}
++ };
+  std::vector< snowflake > snowflakes;
++#endif
+ 
+ void Workspace::draw()
+ 	{
+
+Modified: trunk/code/main.cpp
+===================================================================
+--- trunk/code/main.cpp	2006-04-28 15:26:13 UTC (rev 42)
++++ trunk/code/main.cpp	2006-04-28 15:37:42 UTC (rev 43)
+@@ -135,7 +135,9 @@
+ 	glutMouseFunc( mouse );
+ 	glutMotionFunc( motion );
+ 
+-	glutIdleFunc( display ); // for snowflakes
++	#if defined(_WIN32)
++		glutIdleFunc( display ); // for snowflakes
++	#endif
+ 
+ 	initGL();
+ 
+
+
+
+From twinbee at berlios.de  Fri Apr 28 19:44:28 2006
+From: twinbee at berlios.de (twinbee at berlios.de)
+Date: Fri, 28 Apr 2006 19:44:28 +0200
+Subject: [Halttool-dev] r44 - trunk/code
+Message-ID: <200604281744.k3SHiSUs016151@sheep.berlios.de>
+
+Author: twinbee
+Date: 2006-04-28 19:44:20 +0200 (Fri, 28 Apr 2006)
+New Revision: 44
+
+Modified:
+   trunk/code/Sequence.cpp
+Log:
+Fixed ADD/SUB code generation.
+
+Modified: trunk/code/Sequence.cpp
+===================================================================
+--- trunk/code/Sequence.cpp	2006-04-28 15:37:42 UTC (rev 43)
++++ trunk/code/Sequence.cpp	2006-04-28 17:44:20 UTC (rev 44)
+@@ -383,14 +383,14 @@
+ 	
+ 	if ( dest.mode == EA::DataDirect )
+ 		{
+-		opWord.insert( dest.mode, 9, 3 );
++		opWord.insert( dest.reg, 9, 3 );
+ 		opWord.insert( 0, 8 ); // op-mode
+ 		opWord.insert( src.reg, 0, 3 );
+ 		opWord.insert( src.mode, 3, 3 );
+ 		}
+ 	else if ( src.mode == EA::DataDirect )
+ 		{
+-		opWord.insert( src.mode, 9, 3 );
++		opWord.insert( src.reg, 9, 3 );
+ 		opWord.insert( 1, 8 ); // op-mode
+ 		opWord.insert( dest.reg, 0, 3 );
+ 		opWord.insert( dest.mode, 3, 3 );
+
+
+

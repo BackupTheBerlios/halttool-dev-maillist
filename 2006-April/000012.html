@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Halttool-dev] r41 - trunk/code
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/halttool-dev/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:halttool-dev%40lists.berlios.de?Subject=Re%3A%20%5BHalttool-dev%5D%20r41%20-%20trunk/code&In-Reply-To=%3C200604281347.k3SDlgA0028626%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000011.html">
+   <LINK REL="Next"  HREF="000013.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Halttool-dev] r41 - trunk/code</H1>
+    <B>merwin at BerliOS</B> 
+    <A HREF="mailto:halttool-dev%40lists.berlios.de?Subject=Re%3A%20%5BHalttool-dev%5D%20r41%20-%20trunk/code&In-Reply-To=%3C200604281347.k3SDlgA0028626%40sheep.berlios.de%3E"
+       TITLE="[Halttool-dev] r41 - trunk/code">merwin at berlios.de
+       </A><BR>
+    <I>Fri Apr 28 15:47:42 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000011.html">[Halttool-dev] r40 - trunk/code
+</A></li>
+        <LI>Next message: <A HREF="000013.html">[Halttool-dev] r42 - trunk/code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#12">[ date ]</a>
+              <a href="thread.html#12">[ thread ]</a>
+              <a href="subject.html#12">[ subject ]</a>
+              <a href="author.html#12">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: merwin
+Date: 2006-04-28 15:47:39 +0200 (Fri, 28 Apr 2006)
+New Revision: 41
+
+Modified:
+   trunk/code/Sequence.cpp
+Log:
+
+ok.
+
+
+Modified: trunk/code/Sequence.cpp
+===================================================================
+--- trunk/code/Sequence.cpp	2006-04-28 13:39:29 UTC (rev 40)
++++ trunk/code/Sequence.cpp	2006-04-28 13:47:39 UTC (rev 41)
+@@ -19,19 +19,20 @@
+ 
+ 	//windows specific kludge. please leave in place
+ 	//otherwise windows will eat your babies
++	// &lt;mike&gt;Windows is wrong&lt;/mike&gt;
+ 	if (sourceText.empty())
+-	{
+-	 //Token t_t (Token::EndLine); //edit this line
+-	 //m_tokens.push_back( t_t );
+-	}
++		{
++		 //Token t_t (Token::EndLine); //edit this line
++		 //m_tokens.push_back( t_t );
++		}
+ 	else
+-	while ( lex &gt;&gt; t )
+-		{
+-		m_tokens.push_back( t );
++		while ( lex &gt;&gt; t )
++			{
++			m_tokens.push_back( t );
+ 
+-		if ( ! lex.success() )
+-			m_errors.push_back( lex.error() );
+-		}
++			if ( ! lex.success() )
++				m_errors.push_back( lex.error() );
++			}
+ 	
+ 	translate();
+ 	}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000011.html">[Halttool-dev] r40 - trunk/code
+</A></li>
+	<LI>Next message: <A HREF="000013.html">[Halttool-dev] r42 - trunk/code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#12">[ date ]</a>
+              <a href="thread.html#12">[ thread ]</a>
+              <a href="subject.html#12">[ subject ]</a>
+              <a href="author.html#12">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/halttool-dev">More information about the Halttool-dev
+mailing list</a><br>
+</body></html>

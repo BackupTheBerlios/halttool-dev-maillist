@@ -1,0 +1,102 @@
+From twinbee at mail.berlios.de  Tue Nov 21 20:38:08 2006
+From: twinbee at mail.berlios.de (twinbee at mail.berlios.de)
+Date: Tue, 21 Nov 2006 20:38:08 +0100
+Subject: [Halttool-dev] r45 - trunk/code
+Message-ID: <200611211938.kALJc8BT002004@sheep.berlios.de>
+
+Author: twinbee
+Date: 2006-11-21 20:37:55 +0100 (Tue, 21 Nov 2006)
+New Revision: 45
+
+Modified:
+   trunk/code/Color.cpp
+Log:
+
+
+Modified: trunk/code/Color.cpp
+===================================================================
+--- trunk/code/Color.cpp	2006-04-28 17:44:20 UTC (rev 44)
++++ trunk/code/Color.cpp	2006-11-21 19:37:55 UTC (rev 45)
+@@ -1,38 +1,41 @@
+-
+-#include "Color.h"
+-#include "graphics.h"
+-
+-std::map< std::string, Color > Color::palette;
+-
+-Color::Color()
+-	: red(0.5), green(0.5), blue(0.5), alpha(1.0)
+-	{ }
+-
+-Color::Color( float r, float g, float b, float a )
+-	: red(r), green(g), blue(b), alpha(a)
+-	{ }
+-
+-Color::Color( float hue )
+-	:   red( cos(( hue - 0.000 ) * 2 * M_PI ) / 2 + 0.5 ),
+-	  green( cos(( hue - 0.333 ) * 2 * M_PI ) / 2 + 0.5 ),
+-	   blue( cos(( hue - 0.667 ) * 2 * M_PI ) / 2 + 0.5 ),
+-	  alpha( 1.0 )
+-	{ }
+-
+-void Color::set()
+-	{
+-	glColor4f( red, green, blue, alpha );
+-	}
+-
+-float Color::value()
+-	{ return ( red + green + blue ) / 3; }
+-
+-Color Color::scaleValue( float v )
+-	{
+-	return Color( red * v, green * v, blue * v, alpha );
+-	}
+-
+-Color Color::withAlpha( float a )
+-	{
+-	return Color( red, green, blue, a );
+-	}
++//superficial changes!!!
++// actually i am just showing mike johnson SVN
++// will remove --matt
++
++#include "Color.h"
++#include "graphics.h"
++
++std::map< std::string, Color > Color::palette;
++
++Color::Color()
++	: red(0.5), green(0.5), blue(0.5), alpha(1.0)
++	{ }
++
++Color::Color( float r, float g, float b, float a )
++	: red(r), green(g), blue(b), alpha(a)
++	{ }
++
++Color::Color( float hue )
++	:   red( cos(( hue - 0.000 ) * 2 * M_PI ) / 2 + 0.5 ),
++	  green( cos(( hue - 0.333 ) * 2 * M_PI ) / 2 + 0.5 ),
++	   blue( cos(( hue - 0.667 ) * 2 * M_PI ) / 2 + 0.5 ),
++	  alpha( 1.0 )
++	{ }
++
++void Color::set()
++	{
++	glColor4f( red, green, blue, alpha );
++	}
++
++float Color::value()
++	{ return ( red + green + blue ) / 3; }
++
++Color Color::scaleValue( float v )
++	{
++	return Color( red * v, green * v, blue * v, alpha );
++	}
++
++Color Color::withAlpha( float a )
++	{
++	return Color( red, green, blue, a );
++	}
+
+
+
